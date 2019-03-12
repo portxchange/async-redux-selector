@@ -1,0 +1,24 @@
+{
+  "name": "selectorbeak",
+  "version": "0.0.1",
+  "description": "Selectors that provide a way to fetch data by themselves",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wernerdegroot/selectorbeak.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wernerdegroot/selectorbeak/issues"
+  },
+  "homepage": "https://github.com/wernerdegroot/selectorbeak#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^3.3.3333"
+  }
+}
