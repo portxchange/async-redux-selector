@@ -1,3 +1,3 @@
 import { CacheItem } from './CacheItem'
 
-export type Cache<Key, Result> = Array<CacheItem<Key, Result>>
+export type Cache<Key, Result, Meta> = Array<CacheItem<Key, Result, Meta>>
