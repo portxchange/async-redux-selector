@@ -10,6 +10,15 @@ export type AwaitResult<Key> = Readonly<{
   requestId: string
 }>
 
+export function awaitResult<Key>(cacheId: string, key: Key, requestId: string): AwaitResult<Key> {
+  return {
+    type: AWAIT_RESULT,
+    cacheId,
+    key,
+    requestId
+  }
+}
+
 export function isAwaitResult<Key>(action: GenericAction): action is AwaitResult<Key> {
   return action.type === AWAIT_RESULT
 }
@@ -20,6 +29,15 @@ export type ReceiveResult<Value> = Readonly<{
   requestId: string
   value: Value
 }>
+
+export function receiveResult<Value>(cacheId: string, requestId: string, value: Value): ReceiveResult<Value> {
+  return {
+    type: RECEIVE_RESULT,
+    cacheId,
+    requestId,
+    value
+  }
+}
 
 export function isReceiveResult<Value>(action: GenericAction): action is ReceiveResult<Value> {
   return action.type === RECEIVE_RESULT
