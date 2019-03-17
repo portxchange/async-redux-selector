@@ -1,47 +1,55 @@
 import { Selector } from './Selector'
 import { Cache } from './Cache'
-import { AsyncResult } from './AsyncResult'
+import { AsyncValue } from './AsyncValue'
 import { Equality } from './Equality'
 import { createAsyncResult } from './createAsyncResult'
+import { GenericAction } from './Action'
+import { createReducer } from './createReducer'
 
-export type CacheApiGetFor<Key, Value, Meta> = Readonly<{
-  orElse<Command>(command: Command): AsyncResult<Command, Key, Value, Meta>
+export type CacheApiGetFor<Value> = Readonly<{
+  orElse<Command>(command: Command): AsyncValue<Command, Value>
 }>
 
-export function cacheApiGetFor<Key, Value, Meta>(cache: Cache<Key, Value, Meta>, key: Key, keysAreEqual: Equality<Key>): CacheApiGetFor<Key, Value, Meta> {
+export function cacheApiGetFor<Key, Value, Meta>(cache: Cache<Key, Value, Meta>, key: Key, keysAreEqual: Equality<Key>): CacheApiGetFor<Value> {
   return {
-    orElse<Command>(command: Command): AsyncResult<Command, Key, Value, Meta> {
+    orElse<Command>(command: Command): AsyncValue<Command, Value> {
       return createAsyncResult(cache, key, keysAreEqual, command)
     }
   }
 }
 
-export type CacheApi<Key, Value, Meta> = Readonly<{
-  getFor(key: Key): CacheApiGetFor<Key, Value, Meta>
+export type CacheApi<Key, Value> = Readonly<{
+  getFor(key: Key): CacheApiGetFor<Value>
 }>
 
-export function cacheApi<Key, Value, Meta>(cache: Cache<Key, Value, Meta>, keysAreEqual: Equality<Key>): CacheApi<Key, Value, Meta> {
+export function cacheApi<Key, Value, Meta>(cache: Cache<Key, Value, Meta>, keysAreEqual: Equality<Key>): CacheApi<Key, Value> {
   return {
-    getFor(key: Key): CacheApiGetFor<Key, Value, Meta> {
+    getFor(key: Key): CacheApiGetFor<Value> {
       return cacheApiGetFor(cache, key, keysAreEqual)
     }
   }
 }
 
 export type CacheDefinition<AppState, Key, Value, Meta> = Readonly<{
+  cacheId: string
   cacheSelector: Selector<AppState, Cache<Key, Value, Meta>>
   keysAreEqual: Equality<Key>
-  selector: Selector<AppState, CacheApi<Key, Value, Meta>>
+  reducer: (state: Cache<Key, Value, Meta> | undefined, action: GenericAction) => Cache<Key, Value, Meta>
+  selector: Selector<AppState, CacheApi<Key, Value>>
 }>
 
 export function cacheDefinition<AppState, Key, Value, Meta>(
+  cacheId: string,
   cacheSelector: Selector<AppState, Cache<Key, Value, Meta>>,
-  keysAreEqual: Equality<Key>
+  keysAreEqual: Equality<Key>,
+  limiter: (cache: Cache<Key, Value, Meta>) => Cache<Key, Value, Meta>
 ): CacheDefinition<AppState, Key, Value, Meta> {
   return {
+    cacheId,
     cacheSelector,
     keysAreEqual,
-    selector(appState: AppState): CacheApi<Key, Value, Meta> {
+    reducer: createReducer(cacheId, keysAreEqual, limiter),
+    selector(appState: AppState): CacheApi<Key, Value> {
       const cache = cacheSelector(appState)
       return cacheApi(cache, keysAreEqual)
     }

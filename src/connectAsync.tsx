@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { AsyncResult } from './AsyncResult'
+import { AsyncValue } from './AsyncValue'
 import { None } from './None'
 import { createGetStatePropsAndCommands } from './createGetStatePropsAndCommands'
 import { memoize } from './utils'
@@ -10,7 +10,7 @@ type StateProps<AsyncStateProps, SyncStateProps> = { [K in keyof AsyncStateProps
 
 export function connectAsync<AppState, AsyncStateProps, SyncStateProps, DispatchProps, Command>(
   Component: React.ComponentType<StateProps<AsyncStateProps, SyncStateProps> & DispatchProps>,
-  mapStateToAsyncStateProps: (appState: AppState) => { [K in keyof AsyncStateProps]: AsyncResult<Command, unknown, AsyncStateProps[K], unknown> },
+  mapStateToAsyncStateProps: (appState: AppState) => { [K in keyof AsyncStateProps]: AsyncValue<Command, AsyncStateProps[K]> },
   mapStateToSyncStateProps: (appState: AppState) => SyncStateProps,
   mapDispatchToProps: (dispatch: Redux.Dispatch<Redux.Action>) => DispatchProps,
   commandHandler: (dispatch: Redux.Dispatch<Redux.Action>, command: Command) => void

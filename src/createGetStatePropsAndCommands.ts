@@ -1,9 +1,9 @@
-import { AsyncResult } from './AsyncResult'
 import { None } from './None'
 import { toSyncStateProps } from './toSyncStateProps'
+import { AsyncValue } from './AsyncValue'
 
 export const createGetStatePropsAndCommands = <AppState, AsyncStateProps, SyncStateProps, Command>(
-  mapStateToAsyncStateProps: (appState: AppState) => { [K in keyof AsyncStateProps]: AsyncResult<Command, unknown, AsyncStateProps[K], unknown> },
+  mapStateToAsyncStateProps: (appState: AppState) => { [K in keyof AsyncStateProps]: AsyncValue<Command, AsyncStateProps[K]> },
   mapStateToSyncStateProps: (appState: AppState) => SyncStateProps
 ) => (appState: AppState): [{ [K in keyof AsyncStateProps]: AsyncStateProps[K] | None } & SyncStateProps, Command[]] => {
   const [asyncPart, commands] = toSyncStateProps(mapStateToAsyncStateProps(appState))

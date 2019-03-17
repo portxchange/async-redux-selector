@@ -1,35 +1,35 @@
-import { AWAITING_RESULT, RESULT_RECEIVED } from './const'
+import { AWAITING_VALUE, VALUE_RECEIVED } from './const'
 
-export type AwaitingResult<Key, Meta> = Readonly<{
-  type: typeof AWAITING_RESULT
+export type AwaitingValue<Key, Meta> = Readonly<{
+  type: typeof AWAITING_VALUE
   key: Key
   requestId: string
   meta: Meta
 }>
 
-export function awaitingResult<Key, Meta>(key: Key, requestId: string, meta: Meta): AwaitingResult<Key, Meta> {
+export function awaitingValue<Key, Meta>(key: Key, requestId: string, meta: Meta): AwaitingValue<Key, Meta> {
   return {
-    type: AWAITING_RESULT,
+    type: AWAITING_VALUE,
     key,
     requestId,
     meta
   }
 }
 
-export type ResultReceived<Key, Value, Meta> = Readonly<{
-  type: typeof RESULT_RECEIVED
+export type ValueReceived<Key, Value, Meta> = Readonly<{
+  type: typeof VALUE_RECEIVED
   key: Key
   value: Value
   meta: Meta
 }>
 
-export function resultReceived<Key, Value, Meta>(key: Key, value: Value, meta: Meta): ResultReceived<Key, Value, Meta> {
+export function valueReceived<Key, Value, Meta>(key: Key, value: Value, meta: Meta): ValueReceived<Key, Value, Meta> {
   return {
-    type: RESULT_RECEIVED,
+    type: VALUE_RECEIVED,
     key,
     value,
     meta
   }
 }
 
-export type CacheItem<Key, Value, Meta> = AwaitingResult<Key, Meta> | ResultReceived<Key, Value, Meta>
+export type CacheItem<Key, Value, Meta> = AwaitingValue<Key, Meta> | ValueReceived<Key, Value, Meta>

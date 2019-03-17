@@ -1,7 +1,7 @@
-import { asyncCommand, asyncCacheItem } from '../AsyncResult'
-import { awaitingResult, resultReceived } from '../CacheItem'
+import { asyncCommand, fromCacheItem } from '../AsyncValue'
 import { toSyncStateProps } from '../toSyncStateProps'
 import { None, none } from '../None'
+import { awaitingValue, valueReceived } from '../CacheItem'
 
 describe('toSyncStateProps', () => {
   it('should return (part of the) props and commands', () => {
@@ -21,10 +21,10 @@ describe('toSyncStateProps', () => {
     }
 
     const asyncStateProps = {
-      monkey: asyncCommand<GetMonkeyCommand>({ type: Commands.GetMonkey }),
-      hare: asyncCacheItem<number, number, number>(awaitingResult(1, 'request-1', 100)),
-      mule: asyncCommand<FetchMuleCommand>({ type: Commands.FetchMule }),
-      platipus: asyncCacheItem<number, string, number>(resultReceived(2, 'P-p-p-platipus', 200))
+      monkey: asyncCommand<GetMonkeyCommand>([{ type: Commands.GetMonkey }]),
+      hare: fromCacheItem<number, number, number>(awaitingValue(1, 'request-1', 100)),
+      mule: asyncCommand<FetchMuleCommand>([{ type: Commands.FetchMule }]),
+      platipus: fromCacheItem<number, string, number>(valueReceived(2, 'P-p-p-platipus', 200))
     }
 
     const [syncStatePropsToVerify, commandsToVerify] = toSyncStateProps<Command, AsyncStateProps>(asyncStateProps)
