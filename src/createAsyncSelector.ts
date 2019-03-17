@@ -1,4 +1,4 @@
-import { AsyncValue, ensureAsyncValue, combineMany } from './AsyncValue'
+import { AsyncValue, ensureAsyncValue, combineMany, flattenIfNecessary } from './AsyncValue'
 import { AsyncSelector } from './AsyncSelector'
 import { Selector } from './Selector'
 import { memoize, arraysAreEqual } from './utils'
@@ -39,7 +39,7 @@ export function createAsyncSelector<AppState, Command, P1, P2, Result>(
 
 export function createAsyncSelector<AppState, Command, Result>(...args: any[]): AsyncSelector<AppState, Command, Result> {
   const selectors = args.slice(0, -1) as Array<Selector<AppState, unknown | AsyncValue<Command, unknown>>>
-  const fn = args[args.length - 1] as (...args: any[]) => Result
+  const fn = args[args.length - 1] as (...args: any[]) => Result | AsyncValue<Command, Result>
 
   // We memoize the `combineMany` (with `fn`) so that `fn` is only executed
   // when the input values change. Because the input values are `AsyncValue`
@@ -47,8 +47,8 @@ export function createAsyncSelector<AppState, Command, Result>(...args: any[]): 
   // we would like to compare the values *inside* the `AsyncValue` instead
   // of the `AsyncValue` instances themselves.
   const combineManyWithFn = memoize(
-    (values: Array<AsyncValue<Command, any>>): AsyncValue<Command, Result> => {
-      return combineMany(values, fn)
+    (asyncValues: Array<AsyncValue<Command, any>>): AsyncValue<Command, Result> => {
+      return flattenIfNecessary(combineMany(asyncValues, fn))
     },
     {
       paramsAreEqual: ([left], [right]) => arraysAreEqual(left, right, asyncValuesAreEqual),

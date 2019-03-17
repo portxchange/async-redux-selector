@@ -63,5 +63,18 @@ describe('createAsyncSelector', () => {
 
       expect(numberOfTimesExecuted).toEqual(3)
     })
+
+    it('should return the exact same reference if the function produces the same result', () => {
+      const first = mockSelector('one')
+      const second = mockSelector(2)
+      const third = createAsyncSelector(first.selector, second.selector, (f, s) => f.length + s)
+
+      // Call the selector two times, with the different arguments but with the same result:
+      const toVerify1 = third({ version: 1 })
+      first.setValue('uno')
+      const toVerify2 = third({ version: 2 })
+
+      expect(toVerify1).toBe(toVerify2)
+    })
   })
 })
