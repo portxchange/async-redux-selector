@@ -160,6 +160,17 @@ describe('createAsyncSelector', () => {
         const expected: AsyncValue<Command, number> = asyncCommand([{ type: CommandType.DoSomething }, { type: CommandType.DoSomethingElse }])
         expect(toVerify).toEqual(expected)
       })
+
+      it('should return an `AsyncCommand` with multiple commands if more of the async selectors produce an `AsyncCommand`', () => {
+        const str = mockSelector<AsyncValue<Command, string>>(asyncCommand([{ type: CommandType.DoSomething }]))
+        const num = mockSelector<AsyncValue<Command, number>>(asyncCommand([{ type: CommandType.DoSomethingElse }]))
+        const bool = mockSelector(false)
+        const res = createAsyncSelector(str.selector, num.selector, bool.selector, (s, n, b) => s.length + n * (b ? 2 : 1))
+
+        const toVerify = res({ version: 1 })
+        const expected: AsyncValue<Command, number> = asyncCommand([{ type: CommandType.DoSomething }, { type: CommandType.DoSomethingElse }])
+        expect(toVerify).toEqual(expected)
+      })
     })
   })
 })
