@@ -15,6 +15,10 @@ export type AsyncAwaitingValue = Readonly<{
   type: typeof ASYNC_AWAITING_VALUE
 }>
 
+export function asyncAwaitingValue(): AsyncAwaitingValue {
+  return { type: ASYNC_AWAITING_VALUE }
+}
+
 export type AsyncValueReceived<Value> = Readonly<{
   type: typeof ASYNC_VALUE_RECEIVED
   value: Value

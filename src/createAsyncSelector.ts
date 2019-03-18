@@ -37,6 +37,13 @@ export function createAsyncSelector<AppState, Command, P1, P2, Result>(
   fn: (p1: P1, p2: P2) => Result | AsyncValue<Command, Result>
 ): AsyncSelector<AppState, Command, Result>
 
+export function createAsyncSelector<AppState, Command, P1, P2, P3, Result>(
+  s1: Selector<AppState, P1 | AsyncValue<Command, P1>>,
+  s2: Selector<AppState, P2 | AsyncValue<Command, P2>>,
+  s3: Selector<AppState, P3 | AsyncValue<Command, P3>>,
+  fn: (p1: P1, p2: P2, p3: P3) => Result | AsyncValue<Command, Result>
+): AsyncSelector<AppState, Command, Result>
+
 export function createAsyncSelector<AppState, Command, Result>(...args: any[]): AsyncSelector<AppState, Command, Result> {
   const selectors = args.slice(0, -1) as Array<Selector<AppState, unknown | AsyncValue<Command, unknown>>>
   const fn = args[args.length - 1] as (...args: any[]) => Result | AsyncValue<Command, Result>
