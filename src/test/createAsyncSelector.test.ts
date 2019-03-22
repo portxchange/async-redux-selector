@@ -139,40 +139,60 @@ describe('createAsyncSelector', () => {
 
     describe('producing a regular value', () => {
       it('should return an `AsyncValueReceived` when all async selectors produce an `AsyncValueReceived`', () => {
-        const res = createAsyncSelector(str.selector, num.selector, bool.selector, (s, n, b) => s.length + n * (b ? 2 : 1))
+        let wasCalled = false
+        const res = createAsyncSelector(str.selector, num.selector, bool.selector, (s, n, b) => {
+          wasCalled = true
+          return s.length + n * (b ? 2 : 1)
+        })
 
         const toVerify = res({ version: 1 })
         const expected: AsyncValue<Command, number> = asyncValueReceived(5)
         expect(toVerify).toEqual(expected)
+        expect(wasCalled).toEqual(true)
       })
 
       it('should return an `AsyncAwaitingValue` when one of the async selectors produces an `AsyncAwaitingValue` and the result produce an `AsyncValueReceived`', () => {
+        let wasCalled = false
         num.setValue(asyncAwaitingValue())
-        const res = createAsyncSelector(str.selector, num.selector, bool.selector, (s, n, b) => s.length + n * (b ? 2 : 1))
+        const res = createAsyncSelector(str.selector, num.selector, bool.selector, (s, n, b) => {
+          wasCalled = true
+          return s.length + n * (b ? 2 : 1)
+        })
 
         const toVerify = res({ version: 1 })
         const expected: AsyncValue<Command, number> = asyncAwaitingValue()
         expect(toVerify).toEqual(expected)
+        expect(wasCalled).toEqual(false)
       })
 
       it('should return an `AsyncCommand` when one of the async selectors produces an `AsyncCommand`', () => {
+        let wasCalled = false
         str.setValue(asyncCommand([{ type: CommandType.DoSomething }, { type: CommandType.DoSomethingElse }]))
         num.setValue(asyncAwaitingValue())
-        const res = createAsyncSelector(str.selector, num.selector, bool.selector, (s, n, b) => s.length + n * (b ? 2 : 1))
+        const res = createAsyncSelector(str.selector, num.selector, bool.selector, (s, n, b) => {
+          wasCalled = true
+          return s.length + n * (b ? 2 : 1)
+        })
 
         const toVerify = res({ version: 1 })
         const expected: AsyncValue<Command, number> = asyncCommand([{ type: CommandType.DoSomething }, { type: CommandType.DoSomethingElse }])
         expect(toVerify).toEqual(expected)
+        expect(wasCalled).toEqual(false)
       })
 
       it('should return an `AsyncCommand` with multiple commands if more of the async selectors produce an `AsyncCommand`', () => {
+        let wasCalled = false
         str.setValue(asyncCommand([{ type: CommandType.DoSomething }]))
         num.setValue(asyncCommand([{ type: CommandType.DoSomethingElse }]))
-        const res = createAsyncSelector(str.selector, num.selector, bool.selector, (s, n, b) => s.length + n * (b ? 2 : 1))
+        const res = createAsyncSelector(str.selector, num.selector, bool.selector, (s, n, b) => {
+          wasCalled = true
+          return s.length + n * (b ? 2 : 1)
+        })
 
         const toVerify = res({ version: 1 })
         const expected: AsyncValue<Command, number> = asyncCommand([{ type: CommandType.DoSomething }, { type: CommandType.DoSomethingElse }])
         expect(toVerify).toEqual(expected)
+        expect(wasCalled).toEqual(false)
       })
 
       it('should run only once when called with the same arguments twice', () => {
