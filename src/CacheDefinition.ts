@@ -38,7 +38,7 @@ export type CacheDefinition<AppState, Key, Value, Meta> = Readonly<{
   selector: Selector<AppState, CacheApi<Key, Value>>
 }>
 
-export function cacheDefinition<AppState, Key, Value, Meta>(
+export function createCacheDefinition<AppState, Key, Value, Meta>(
   cacheId: string,
   cacheSelector: Selector<AppState, Cache<Key, Value, Meta>>,
   keysAreEqual: Equality<Key>,
