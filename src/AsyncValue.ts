@@ -1,6 +1,5 @@
 import { ASYNC_COMMAND, ASYNC_AWAITING_VALUE, ASYNC_VALUE_RECEIVED, AWAITING_VALUE, VALUE_RECEIVED } from './const'
 import { CacheItem } from './CacheItem'
-import * as Ord from './Ord'
 
 export type AsyncCommand<Command> = Readonly<{
   type: typeof ASYNC_COMMAND
@@ -29,14 +28,6 @@ export function asyncValueReceived<Value>(value: Value): AsyncValueReceived<Valu
 }
 
 export type AsyncValueType = typeof ASYNC_COMMAND | typeof ASYNC_AWAITING_VALUE | typeof ASYNC_VALUE_RECEIVED
-
-export const asyncValueTypeOrd = Ord.fromRecord<AsyncValueType>({
-  [ASYNC_COMMAND]: 0,
-  [ASYNC_AWAITING_VALUE]: 1,
-  [ASYNC_VALUE_RECEIVED]: 2
-})
-
-export const asyncValueTypeMin = Ord.min(asyncValueTypeOrd)
 
 export type AsyncValue<Command, Value> = AsyncCommand<Command> | AsyncAwaitingValue | AsyncValueReceived<Value>
 
@@ -145,70 +136,6 @@ export function map<Command, A, B>(fn: (a: A) => B, asyncValue: AsyncValue<Comma
   switch (asyncValue.type) {
     case ASYNC_VALUE_RECEIVED:
       return { type: ASYNC_VALUE_RECEIVED, value: fn(asyncValue.value) }
-    case ASYNC_COMMAND:
-    case ASYNC_AWAITING_VALUE:
-      return asyncValue
-    default:
-      const exhaustive: never = asyncValue
-      throw new Error(exhaustive)
-  }
-}
-
-function getCommands<Command>(asyncValue: AsyncValue<Command, unknown>): Command[] {
-  switch (asyncValue.type) {
-    case ASYNC_COMMAND:
-      return asyncValue.commands
-    case ASYNC_AWAITING_VALUE:
-    case ASYNC_VALUE_RECEIVED:
-      return []
-    default:
-      const exhaustive: never = asyncValue
-      throw new Error(exhaustive)
-  }
-}
-
-export function apply<Command, Param, Result>(asyncFn: AsyncValue<Command, (p: Param) => Result>, asyncParam: AsyncValue<Command, Param>): AsyncValue<Command, Result> {
-  switch (asyncFn.type) {
-    case ASYNC_VALUE_RECEIVED: {
-      switch (asyncParam.type) {
-        case ASYNC_VALUE_RECEIVED:
-          return { type: ASYNC_VALUE_RECEIVED, value: asyncFn.value(asyncParam.value) }
-        case ASYNC_COMMAND:
-        case ASYNC_AWAITING_VALUE:
-          return asyncParam
-        default:
-          const exhaustive: never = asyncParam
-          throw new Error(exhaustive)
-      }
-    }
-    case ASYNC_COMMAND:
-    case ASYNC_AWAITING_VALUE: {
-      const asyncFnCommands = getCommands(asyncFn)
-      switch (asyncParam.type) {
-        case ASYNC_COMMAND:
-          return { type: ASYNC_COMMAND, commands: [...asyncFnCommands, ...asyncParam.commands] }
-        case ASYNC_VALUE_RECEIVED:
-        case ASYNC_AWAITING_VALUE:
-          return asyncFn
-        default:
-          const exhaustive: never = asyncParam
-          throw new Error(exhaustive)
-      }
-    }
-    default:
-      const exhaustive: never = asyncFn
-      throw new Error(exhaustive)
-  }
-}
-
-export function flatMap<Command, A, B>(fn: (a: A) => AsyncValue<Command, B>, asyncValue: AsyncValue<Command, A>): AsyncValue<Command, B> {
-  return flatten(map(fn, asyncValue))
-}
-
-export function flatten<Command, Value>(asyncValue: AsyncValue<Command, AsyncValue<Command, Value>>): AsyncValue<Command, Value> {
-  switch (asyncValue.type) {
-    case ASYNC_VALUE_RECEIVED:
-      return asyncValue.value
     case ASYNC_COMMAND:
     case ASYNC_AWAITING_VALUE:
       return asyncValue
