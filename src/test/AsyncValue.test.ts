@@ -1,4 +1,16 @@
-import { AsyncValue, combine, asyncValueReceived, asyncAwaitingValue, asyncCommand, sequence, combineMany, fromCacheItem, map, flattenIfNecessary } from '../AsyncValue'
+import {
+  AsyncValue,
+  combine,
+  asyncValueReceived,
+  asyncAwaitingValue,
+  asyncCommand,
+  sequence,
+  combineMany,
+  fromCacheItem,
+  map,
+  flattenIfNecessary,
+  getCommands
+} from '../AsyncValue'
 import { awaitingValue, valueReceived } from '../CacheItem'
 
 describe('AsynValue', () => {
@@ -235,6 +247,26 @@ describe('AsynValue', () => {
       const asyncValue: AsyncValue<Command, string> = asyncValueReceived('four')
       const expected: AsyncValue<Command, string> = asyncValueReceived('four')
       expect(flattenIfNecessary(asyncValue)).toEqual(expected)
+    })
+  })
+
+  describe('getCommands', () => {
+    it('should return the commands from an `AsyncCommand`', () => {
+      const asyncValue: AsyncValue<Command, string> = asyncCommand([Command.DoSomething, Command.DoSomethingElse])
+      const expected: Command[] = [Command.DoSomething, Command.DoSomethingElse]
+      expect(getCommands(asyncValue)).toEqual(expected)
+    })
+
+    it('should return an empty array when given an `AsyncValueReceived`', () => {
+      const asyncValue: AsyncValue<Command, string> = asyncValueReceived('four')
+      const expected: Command[] = []
+      expect(getCommands(asyncValue)).toEqual(expected)
+    })
+
+    it('should return an empty array when given an `AsyncAwaitingValue`', () => {
+      const asyncValue: AsyncValue<Command, string> = asyncAwaitingValue()
+      const expected: Command[] = []
+      expect(getCommands(asyncValue)).toEqual(expected)
     })
   })
 })

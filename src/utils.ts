@@ -1,5 +1,6 @@
 import { None, none } from './None'
 import { Equality, areSameReference } from './Equality'
+import { Maybe } from './Maybe'
 
 export function keys<O>(o: O): Array<keyof O> {
   return Object.keys(o) as Array<keyof O>
@@ -55,4 +56,12 @@ export function identity<A>(a: A): A {
 
 export function singleton<A>(a: A): A[] {
   return [a]
+}
+
+export function head<A>(arr: A[]): Maybe<A> {
+  if (arr.length > 0) {
+    return { value: arr[0] }
+  } else {
+    return none
+  }
 }

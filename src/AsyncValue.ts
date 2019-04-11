@@ -157,3 +157,16 @@ export function flattenIfNecessary<Command, Value>(u: AsyncValue<Command, Value 
       throw new Error(exhaustive)
   }
 }
+
+export function getCommands<Command, Value>(asyncValue: AsyncValue<Command, Value>): Command[] {
+  switch (asyncValue.type) {
+    case ASYNC_VALUE_RECEIVED:
+    case ASYNC_AWAITING_VALUE:
+      return []
+    case ASYNC_COMMAND:
+      return asyncValue.commands
+    default:
+      const exhaustive: never = asyncValue
+      throw new Error(exhaustive)
+  }
+}

@@ -3,6 +3,8 @@ import { CacheItem } from './CacheItem'
 
 export type GenericAction = Readonly<{ type: string }>
 
+export type CacheAction<Key, Value, Meta> = AwaitValue<Key, Meta> | ReceiveValue<Value>
+
 export type AwaitValue<Key, Meta> = Readonly<{
   type: typeof AWAIT_VALUE
   cacheId: string

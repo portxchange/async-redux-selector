@@ -3,7 +3,7 @@ import { Cache } from './Cache'
 import { AsyncValue } from './AsyncValue'
 import { Equality } from './Equality'
 import { createAsyncResult } from './createAsyncResult'
-import { GenericAction } from './Action'
+import { GenericAction, AwaitValue, ReceiveValue, awaitValue, receiveValue } from './Action'
 import { createReducer } from './createReducer'
 
 export type CacheApiGetFor<Value> = Readonly<{
@@ -36,6 +36,8 @@ export type CacheDefinition<AppState, Key, Value, Meta> = Readonly<{
   keysAreEqual: Equality<Key>
   reducer: (state: Cache<Key, Value, Meta> | undefined, action: GenericAction) => Cache<Key, Value, Meta>
   selector: Selector<AppState, CacheApi<Key, Value>>
+  awaitValue(key: Key, requestId: string, meta: Meta): AwaitValue<Key, Meta>
+  receiveValue(requestId: string, value: Value): ReceiveValue<Value>
 }>
 
 export function createCacheDefinition<AppState, Key, Value, Meta>(
@@ -52,6 +54,12 @@ export function createCacheDefinition<AppState, Key, Value, Meta>(
     selector(appState: AppState): CacheApi<Key, Value> {
       const cache = cacheSelector(appState)
       return cacheApi(cache, keysAreEqual)
+    },
+    awaitValue(key: Key, requestId: string, meta: Meta): AwaitValue<Key, Meta> {
+      return awaitValue(cacheId, key, requestId, meta)
+    },
+    receiveValue(requestId: string, value: Value): ReceiveValue<Value> {
+      return receiveValue(cacheId, requestId, value)
     }
   }
 }
