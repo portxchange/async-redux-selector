@@ -124,7 +124,7 @@ export function isAsyncValue<Command, Value>(u: Value | AsyncValue<Command, Valu
   return typeof u === 'object' && 'type' in u && [ASYNC_COMMAND, ASYNC_AWAITING_VALUE, ASYNC_VALUE_RECEIVED].some(type => type === u.type)
 }
 
-export function ensureAsyncValue<Command, Value>(u: Value | AsyncValue<Command, Value>): AsyncValue<Command, Value> {
+function ensureAsyncValue<Command, Value>(u: Value | AsyncValue<Command, Value>): AsyncValue<Command, Value> {
   return isAsyncValue(u) ? u : fromValue(u)
 }
 

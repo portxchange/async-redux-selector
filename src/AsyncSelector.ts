@@ -1,4 +1,4 @@
 import { Selector } from 'react-redux'
-import { AsyncValue } from './AsyncValue'
+import { AsyncSelectorResult } from './AsyncSelectorResult'
 
-export type AsyncSelector<AppState, Command, Value> = Selector<AppState, AsyncValue<Command, Value>>
+export type AsyncSelector<AppState, Command, Value> = Selector<AppState, AsyncSelectorResult<AppState, Command, Value>>
