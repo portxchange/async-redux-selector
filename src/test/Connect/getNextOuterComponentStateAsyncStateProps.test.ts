@@ -1,11 +1,11 @@
 import { asyncSelectorResult, AsyncSelectorResults } from '../../AsyncSelectorResult'
 import { CommandExecutor } from '../../CommandExecutor'
 import { asyncCommand, asyncAwaitingValue, AsyncValue, asyncValueReceived } from '../../AsyncValue'
-import { getNextState } from '../../Connect/getNextState'
+import { getNextOuterComponentStateAsyncStateProps } from '../../Connect/getNextOuterComponentStateAsyncStateProps'
 import { areSameReference } from '../../Equality'
 import { Tracked, createTracked } from '../../Tracked'
 import { none, NonePartial } from '../../None'
-import { getAsyncProps } from '../../Connect/getAsyncProps'
+import { getInnerComponentProps } from '../../Connect/getInnerComponentProps'
 
 describe('getNextState', () => {
   enum CommandType {
@@ -71,11 +71,11 @@ describe('getNextState', () => {
 
     const getAppState = () => appState
 
-    const initialState = getNextState(commandExecutor, getAppState, mapStateToAsyncProps, {})
+    const initialState = getNextOuterComponentStateAsyncStateProps(commandExecutor, getAppState, mapStateToAsyncProps, mapStateToAsyncProps(appState))
     let nextState = initialState
     if (testCase.nextAppState !== undefined) {
       appState = testCase.nextAppState
-      nextState = getNextState(commandExecutor, getAppState, mapStateToAsyncProps, initialState)
+      nextState = getNextOuterComponentStateAsyncStateProps(commandExecutor, getAppState, mapStateToAsyncProps, initialState)
     }
 
     if (testCase.expectedCommands !== undefined) {
@@ -85,7 +85,7 @@ describe('getNextState', () => {
     }
 
     if (testCase.expectedProps !== undefined) {
-      expect(getAsyncProps<AppState, Command, Props>(nextState)).toEqual(testCase.expectedProps)
+      expect(getInnerComponentProps<AppState, Command, Props, {}, {}>(nextState, {}, {})).toEqual(testCase.expectedProps)
     }
   }
 

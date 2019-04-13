@@ -4,7 +4,8 @@
     "lib": ["es6", "dom"],
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "jsx": "react"
   },
   "include": ["src/**/*"]
 }

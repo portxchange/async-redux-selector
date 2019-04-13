@@ -31,12 +31,12 @@ function getNextCommand<AppState, Command, O>(asyncSelectorResults: AsyncSelecto
   return { type: NextCommandType.NoCommand }
 }
 
-function getNextStateProperty<AppState, Command, Value>(
-  prevState: AsyncSelectorResult<AppState, Command, Value> | undefined,
+function getNextProperty<AppState, Command, Value>(
+  prevState: AsyncSelectorResult<AppState, Command, Value>,
   state: AsyncSelectorResult<AppState, Command, Value>,
   appState: AppState
 ): AsyncSelectorResult<AppState, Command, Value> {
-  if (state.asyncValue.type === ASYNC_VALUE_RECEIVED || prevState === undefined) {
+  if (state.asyncValue.type === ASYNC_VALUE_RECEIVED) {
     // When we have a new value, let's choose to present
     // that to the component. If we don't have a previous
     // value at all, we have nothing else to present to
@@ -56,11 +56,11 @@ function getNextStateProperty<AppState, Command, Value>(
   }
 }
 
-export function getNextState<AppState, Command, O>(
+export function getNextOuterComponentStateAsyncStateProps<AppState, Command, O>(
   commandExecutor: CommandExecutor<Command>,
   getAppState: () => AppState,
   mapStateToAsyncProps: (appState: AppState) => AsyncSelectorResults<AppState, Command, O>,
-  prevState: Partial<AsyncSelectorResults<AppState, Command, O>>
+  prevState: AsyncSelectorResults<AppState, Command, O>
 ): AsyncSelectorResults<AppState, Command, O> {
   // First, execute all commands available.
   let appState = getAppState()
@@ -79,7 +79,7 @@ export function getNextState<AppState, Command, O>(
   // Then, determine the next state, based on the previous state.
   const nextState: Partial<AsyncSelectorResults<AppState, Command, O>> = {}
   keys(asyncSelectorResults).forEach(key => {
-    nextState[key] = getNextStateProperty(prevState[key], asyncSelectorResults[key], appState)
+    nextState[key] = getNextProperty(prevState[key], asyncSelectorResults[key], appState)
   })
   return nextState as AsyncSelectorResults<AppState, Command, O>
 }
