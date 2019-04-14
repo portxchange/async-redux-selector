@@ -13,6 +13,7 @@ import { withPrevious } from '../../utils'
 import { shouldComponentUpdate } from '../../Connect/shouldComponentUpdate'
 import { getInnerComponentProps } from '../../Connect/getInnerComponentProps'
 import { createTrackedSelector } from '../../createTrackedSelector'
+import { PickAsyncProps } from '../Connect/PickAsyncProps'
 
 describe('integration', () => {
   ////////////////////////////////////
@@ -189,7 +190,7 @@ describe('integration', () => {
       }
     }
 
-    function mapStateToAsyncProps(appState: AppState): AsyncSelectorResults<AppState, Command, AsyncProps> {
+    function mapStateToAsyncProps(appState: AppState): PickAsyncProps<AppState, Command, Props, 'articles' | 'userDetails'> {
       return {
         articles: asyncResultsSelector(appState),
         userDetails: asyncUserDetailsSelector(appState)
