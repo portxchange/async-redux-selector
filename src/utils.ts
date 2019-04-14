@@ -65,3 +65,17 @@ export function head<A>(arr: A[]): Maybe<A> {
     return none
   }
 }
+
+type WithPrevious<A> = Readonly<{
+  current: A
+  previous: A | None
+}>
+export function withPrevious<A>(arr: A[]): Array<WithPrevious<A>> {
+  return arr.map<WithPrevious<A>>((current, index) => {
+    if (index === 0) {
+      return { current, previous: none }
+    } else {
+      return { current, previous: arr[index - 1] }
+    }
+  })
+}

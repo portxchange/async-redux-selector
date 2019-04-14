@@ -23,16 +23,16 @@ export function createAppStateSubscriber<AppState, Command, AsyncStateProps, Syn
 
     isCurrentlyOnCallStack = true
     const currentOuterComponentState = getOuterComponentState()
-    const nextAsyncStateProps = getNextOuterComponentStateAsyncStateProps<AppState, Command, AsyncStateProps>(
+    const nextOuterComponentStateAsyncStateProps = getNextOuterComponentStateAsyncStateProps<AppState, Command, AsyncStateProps>(
       commandExecutor,
       getAppState,
       mapStateToAsyncStateProps,
       currentOuterComponentState.asyncStateProps
     )
-    const nextSyncStateProps = mapStateToSyncStateProps(getAppState())
+    const nextOuterComponentStateSyncStateProps = mapStateToSyncStateProps(getAppState())
     setOuterComponentState({
-      asyncStateProps: nextAsyncStateProps,
-      syncStateProps: nextSyncStateProps
+      asyncStateProps: nextOuterComponentStateAsyncStateProps,
+      syncStateProps: nextOuterComponentStateSyncStateProps
     })
     isCurrentlyOnCallStack = false
   }
