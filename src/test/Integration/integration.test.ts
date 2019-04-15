@@ -2,14 +2,13 @@ import { Cache } from '../../Cache'
 import { None, none, NonePartial } from '../../None'
 import { CacheAction } from '../../Action'
 import { createCacheDefinition } from '../../CacheDefinition'
-import { areSameReference } from '../../Equality'
+import { areSameReference, arraysAreEqual } from '../../Equality'
 import { defaultLimiter } from '../../defaultLimiter'
 import { CommandExecutor } from '../../CommandExecutor'
 import { createAsyncSelector } from '../../createAsyncSelector'
-import { AsyncSelectorResults } from '../../AsyncSelectorResult'
 import { OuterComponentState } from '../../Connect/OuterComponentState'
 import { createAppStateSubscriber } from '../../Connect/createAppStateSubscriber'
-import { withPrevious } from '../../utils'
+import { withPrevious, flatMap } from '../../utils'
 import { shouldComponentUpdate } from '../../Connect/shouldComponentUpdate'
 import { getInnerComponentProps } from '../../Connect/getInnerComponentProps'
 import { createTrackedSelector } from '../../createTrackedSelector'
@@ -20,13 +19,16 @@ describe('integration', () => {
   // Define the shape of the store. //
   ////////////////////////////////////
   type QueryString = string
-  type Article = Readonly<{ title: string }>
-  type UserDetails = string
+  type CommentId = number
+  type Comment = Readonly<{ id: CommentId; body: string }>
+  type Book = Readonly<{ title: string; comments: CommentId[] }>
+  type User = string
 
   type AppState = Readonly<{
     queryString: QueryString
-    articlesCache: Cache<QueryString, Article[], None>
-    userDetailsCache: Cache<None, UserDetails, None>
+    commentsCache: Cache<CommentId[], Comment[], None>
+    booksCache: Cache<QueryString, Book[], None>
+    userCache: Cache<None, User, None>
   }>
 
   let appState: AppState
@@ -38,29 +40,32 @@ describe('integration', () => {
   ////////////////////////////////////
   // Server state.                  //
   ////////////////////////////////////
-  const howToPlayTheGuitarArticle: Article = { title: 'How to play the guitar' }
-  const twentyIntermediateGuitarSongsArticle: Article = { title: '20 intermediate guitar songs' }
-  const pianoStarterArticle: Article = { title: 'Piano starter' }
-  const articlesOnServer: Article[] = [howToPlayTheGuitarArticle, twentyIntermediateGuitarSongsArticle, pianoStarterArticle]
-  const userDetails: UserDetails = 'Hank'
+  const purelyFunctionalDataStructuresBook: Book = { title: 'Purely Functional Data Structures', comments: [1, 3] }
+  const pearlsOfFunctionalAlgorithmDesignBook: Book = { title: 'Pearls of Functional Algorithm Design', comments: [2, 5] }
+  const algebraicSemanticsOfImperativeProgramsBook: Book = { title: 'Algebraic Semantics of Imperative Programs', comments: [4] }
+
+  const comment1: Comment = { id: 1, body: 'Excellent stuff!' }
+  const comment2: Comment = { id: 2, body: 'Very interesting!' }
+  const comment3: Comment = { id: 3, body: 'A worthy read!' }
+  const comment4: Comment = { id: 4, body: 'I like it a lot!' }
+  const comment5: Comment = { id: 5, body: 'Bestseller of the year!' }
+  const commentsOnServer: Comment[] = [comment1, comment2, comment3, comment4, comment5]
+  const booksOnServer: Book[] = [purelyFunctionalDataStructuresBook, pearlsOfFunctionalAlgorithmDesignBook, algebraicSemanticsOfImperativeProgramsBook]
+  const userOnServer: User = 'Hank'
 
   ////////////////////////////////////
   // Cache definitions.             //
   ////////////////////////////////////
-  const articlesCacheDefinition = createCacheDefinition<AppState, QueryString, Article[], None>('articles', appState => appState.articlesCache, areSameReference, defaultLimiter(5))
-  const userDetailsCacheDefinition = createCacheDefinition<AppState, None, UserDetails, None>(
-    'userDetails',
-    appState => appState.userDetailsCache,
-    areSameReference,
-    defaultLimiter(5)
-  )
+  const commentsCacheDefinition = createCacheDefinition<AppState, CommentId[], Comment[], None>('comments', appState => appState.commentsCache, arraysAreEqual, defaultLimiter(5))
+  const booksCacheDefinition = createCacheDefinition<AppState, QueryString, Book[], None>('books', appState => appState.booksCache, areSameReference, defaultLimiter(5))
+  const userCacheDefinition = createCacheDefinition<AppState, None, User, None>('user', appState => appState.userCache, areSameReference, defaultLimiter(5))
 
   ////////////////////////////////////
   // Actions.                       //
   ////////////////////////////////////
   type SetQueryString = Readonly<{ type: 'SET_QUERY_STRING'; queryString: QueryString }>
-  type ClearResults = Readonly<{ type: 'CLEAR_RESULTS' }>
-  type Action = CacheAction<any, any, any> | SetQueryString | ClearResults
+  type ClearBooks = Readonly<{ type: 'CLEAR_BOOKS' }>
+  type Action = CacheAction<any, any, any> | SetQueryString | ClearBooks
 
   ////////////////////////////////////
   // Reducers.                      //
@@ -74,10 +79,10 @@ describe('integration', () => {
     }
   }
 
-  function resultsCacheReducer(resultsCache: Cache<QueryString, Article[], None> = [], action: Action): Cache<QueryString, Article[], None> {
-    const afterCacheActions = articlesCacheDefinition.reducer(resultsCache, action)
+  function booksCacheReducer(booksCache: Cache<QueryString, Book[], None> = [], action: Action): Cache<QueryString, Book[], None> {
+    const afterCacheActions = booksCacheDefinition.reducer(booksCache, action)
     switch (action.type) {
-      case 'CLEAR_RESULTS':
+      case 'CLEAR_BOOKS':
         return []
       default:
         return afterCacheActions
@@ -87,8 +92,9 @@ describe('integration', () => {
   function appStateReducer(appState: Partial<AppState> = {}, action: Action): AppState {
     return {
       queryString: queryStringReducer(appState.queryString, action),
-      articlesCache: resultsCacheReducer(appState.articlesCache, action),
-      userDetailsCache: userDetailsCacheDefinition.reducer(appState.userDetailsCache, action)
+      commentsCache: commentsCacheDefinition.reducer(appState.commentsCache, action),
+      booksCache: booksCacheReducer(appState.booksCache, action),
+      userCache: userCacheDefinition.reducer(appState.userCache, action)
     }
   }
 
@@ -109,22 +115,28 @@ describe('integration', () => {
   // Commands that cause the caches //
   // to grow.                       //
   ////////////////////////////////////
-  type FetchResultsCommand = { type: 'FETCH_RESULTS'; queryString: string }
-  type FetchUserDetailsCommand = { type: 'FETCH_USER_DETAILS' }
-  type Command = FetchResultsCommand | FetchUserDetailsCommand
+  type FetchBooksCommand = { type: 'FETCH_BOOKS'; queryString: string }
+  type FetchCommentsCommand = { type: 'FETCH_COMMENTS'; commentIds: CommentId[] }
+  type FetchUserCommand = { type: 'FETCH_USER' }
+  type Command = FetchBooksCommand | FetchUserCommand | FetchCommentsCommand
 
   let commandsExecuted: Command[]
 
   const commandExecutor: CommandExecutor<Command> = (command: Command) => {
     commandsExecuted.push(command)
     switch (command.type) {
-      case 'FETCH_RESULTS':
-        dispatch(articlesCacheDefinition.awaitValue(command.queryString, 'request-results', none))
-        addActionToFlush(articlesCacheDefinition.receiveValue('request-results', articlesOnServer.filter(article => article.title.indexOf(command.queryString) > -1)))
+      case 'FETCH_BOOKS':
+        dispatch(booksCacheDefinition.awaitValue(command.queryString, 'request-books', none))
+        addActionToFlush(booksCacheDefinition.receiveValue('request-books', booksOnServer.filter(book => book.title.indexOf(command.queryString) > -1)))
         break
-      case 'FETCH_USER_DETAILS':
-        dispatch(userDetailsCacheDefinition.awaitValue(none, 'fetch-user-details', none))
-        addActionToFlush(userDetailsCacheDefinition.receiveValue('fetch-user-details', userDetails))
+      case 'FETCH_USER':
+        dispatch(userCacheDefinition.awaitValue(none, 'fetch-user', none))
+        addActionToFlush(userCacheDefinition.receiveValue('fetch-user', userOnServer))
+        break
+      case 'FETCH_COMMENTS':
+        dispatch(commentsCacheDefinition.awaitValue(command.commentIds, 'fetch-comments', none))
+        const comments = commentsOnServer.filter(comment => command.commentIds.indexOf(comment.id) > -1)
+        addActionToFlush(commentsCacheDefinition.receiveValue('fetch-comments', comments))
         break
     }
   }
@@ -136,12 +148,17 @@ describe('integration', () => {
     return appState.queryString
   }
 
-  const asyncResultsSelector = createAsyncSelector(createTrackedSelector(queryStringSelector, areSameReference), articlesCacheDefinition.selector, (queryString, resultsCache) => {
-    return resultsCache.getFor(queryString).orElse<FetchResultsCommand>({ type: 'FETCH_RESULTS', queryString })
+  const asyncBooksSelector = createAsyncSelector(createTrackedSelector(queryStringSelector, areSameReference), booksCacheDefinition.selector, (queryString, booksCache) => {
+    return booksCache.getFor(queryString).orElse<FetchBooksCommand>({ type: 'FETCH_BOOKS', queryString })
   })
 
-  const asyncUserDetailsSelector = createAsyncSelector(userDetailsCacheDefinition.selector, userDetailsCache => {
-    return userDetailsCache.getFor(none).orElse<FetchUserDetailsCommand>({ type: 'FETCH_USER_DETAILS' })
+  const asyncUserSelector = createAsyncSelector(userCacheDefinition.selector, userCache => {
+    return userCache.getFor(none).orElse<FetchUserCommand>({ type: 'FETCH_USER' })
+  })
+
+  const asyncCommentsSelector = createAsyncSelector(asyncBooksSelector, commentsCacheDefinition.selector, (books, commentsCache) => {
+    const commentIds = flatMap(books, book => book.comments)
+    return commentsCache.getFor(commentIds).orElse<FetchCommentsCommand>({ type: 'FETCH_COMMENTS', commentIds })
   })
 
   ////////////////////////////////////
@@ -165,17 +182,18 @@ describe('integration', () => {
   beforeEach(() => {
     appState = {
       queryString: '',
-      articlesCache: [],
-      userDetailsCache: []
+      commentsCache: [],
+      booksCache: [],
+      userCache: []
     }
     commandsExecuted = []
     actionsToFlush = []
   })
 
-  it('should execute all commands', () => {
+  it('should work correctly when the cache is cleared or input changes', () => {
     type AsyncProps = Readonly<{
-      articles: Article[]
-      userDetails: UserDetails
+      books: Book[]
+      user: User
     }>
 
     type SyncProps = Readonly<{
@@ -190,10 +208,10 @@ describe('integration', () => {
       }
     }
 
-    function mapStateToAsyncProps(appState: AppState): PickAsyncProps<AppState, Command, Props, 'articles' | 'userDetails'> {
+    function mapStateToAsyncProps(appState: AppState): PickAsyncProps<AppState, Command, Props, 'books' | 'user'> {
       return {
-        articles: asyncResultsSelector(appState),
-        userDetails: asyncUserDetailsSelector(appState)
+        books: asyncBooksSelector(appState),
+        user: asyncUserSelector(appState)
       }
     }
 
@@ -217,43 +235,96 @@ describe('integration', () => {
     subscriber()
     expect(getInnerComponentState(outerComponentStates)).toEqual({
       queryString: '',
-      results: none,
-      userDetails: none
+      books: none,
+      user: none
     })
     flush()
     subscriber()
     expect(getInnerComponentState(outerComponentStates)).toEqual({
       queryString: '',
-      results: [howToPlayTheGuitarArticle, twentyIntermediateGuitarSongsArticle, pianoStarterArticle],
-      userDetails
+      books: [purelyFunctionalDataStructuresBook, pearlsOfFunctionalAlgorithmDesignBook, algebraicSemanticsOfImperativeProgramsBook],
+      user: userOnServer
     })
-    dispatch({ type: 'CLEAR_RESULTS' })
+    dispatch({ type: 'CLEAR_BOOKS' })
     subscriber()
     expect(getInnerComponentState(outerComponentStates)).toEqual({
       queryString: '',
-      results: [howToPlayTheGuitarArticle, twentyIntermediateGuitarSongsArticle, pianoStarterArticle],
-      userDetails
+      books: [purelyFunctionalDataStructuresBook, pearlsOfFunctionalAlgorithmDesignBook, algebraicSemanticsOfImperativeProgramsBook],
+      user: userOnServer
     })
     flush()
     subscriber()
     expect(getInnerComponentState(outerComponentStates)).toEqual({
       queryString: '',
-      results: [howToPlayTheGuitarArticle, twentyIntermediateGuitarSongsArticle, pianoStarterArticle],
-      userDetails
+      books: [purelyFunctionalDataStructuresBook, pearlsOfFunctionalAlgorithmDesignBook, algebraicSemanticsOfImperativeProgramsBook],
+      user: userOnServer
     })
-    dispatch({ type: 'SET_QUERY_STRING', queryString: 'guitar' })
+    dispatch({ type: 'SET_QUERY_STRING', queryString: 'Functional' })
     subscriber()
     expect(getInnerComponentState(outerComponentStates)).toEqual({
-      queryString: 'guitar',
-      results: none,
-      userDetails
+      queryString: 'Functional',
+      books: none,
+      user: userOnServer
     })
     flush()
     subscriber()
     expect(getInnerComponentState(outerComponentStates)).toEqual({
-      queryString: 'guitar',
-      results: [howToPlayTheGuitarArticle, twentyIntermediateGuitarSongsArticle],
-      userDetails
+      queryString: 'Functional',
+      books: [purelyFunctionalDataStructuresBook, pearlsOfFunctionalAlgorithmDesignBook],
+      user: userOnServer
+    })
+  })
+
+  it('should work with async selectors that depend on other async selectors', () => {
+    type AsyncProps = Readonly<{
+      comments: Comment[]
+    }>
+
+    type SyncProps = Readonly<{}>
+
+    type Props = NonePartial<AsyncProps> & SyncProps
+
+    function mapStateToSyncProps(_appState: AppState): Pick<Props, never> {
+      return {}
+    }
+
+    function mapStateToAsyncProps(appState: AppState): PickAsyncProps<AppState, Command, Props, 'comments'> {
+      return {
+        comments: asyncCommentsSelector(appState)
+      }
+    }
+
+    let outerComponentState: OuterComponentState<AppState, Command, AsyncProps, SyncProps> = {
+      asyncStateProps: mapStateToAsyncProps(appState),
+      syncStateProps: mapStateToSyncProps(appState)
+    }
+    const outerComponentStates = [outerComponentState]
+
+    const subscriber = createAppStateSubscriber(
+      mapStateToAsyncProps,
+      mapStateToSyncProps,
+      commandExecutor,
+      getState,
+      () => outerComponentState,
+      nextOuterComponentState => {
+        outerComponentState = nextOuterComponentState
+        outerComponentStates.push(outerComponentState)
+      }
+    )
+    dispatch({ type: 'SET_QUERY_STRING', queryString: 'Functional' })
+    subscriber()
+    expect(getInnerComponentState(outerComponentStates)).toEqual({
+      comments: none
+    })
+    flush()
+    subscriber()
+    expect(getInnerComponentState(outerComponentStates)).toEqual({
+      comments: none
+    })
+    flush()
+    subscriber()
+    expect(getInnerComponentState(outerComponentStates)).toEqual({
+      comments: [comment1, comment2, comment3, comment5]
     })
   })
 })

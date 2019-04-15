@@ -1,19 +1,16 @@
 import { None, none } from './None'
-import { Equality, areSameReference } from './Equality'
+import { Equality, areSameReference, arraysAreEqual } from './Equality'
 import { Maybe } from './Maybe'
+
+export function flatMap<A, B>(arr: A[], fn: (a: A) => B[]): B[] {
+  return arr.map(fn).reduce((acc, curr) => {
+    acc.push(...curr)
+    return acc
+  }, [])
+}
 
 export function keys<O>(o: O): Array<keyof O> {
   return Object.keys(o) as Array<keyof O>
-}
-
-export function arraysAreEqual<Elem>(left: Elem[], right: Elem[], elemEquality: Equality<Elem> = areSameReference): boolean {
-  if (left.length !== right.length) {
-    return false
-  }
-  return left.every((leftElem, index) => {
-    const rightElem = right[index]
-    return elemEquality(leftElem, rightElem)
-  })
 }
 
 export type MemoizeEquality<Params extends any[], Result> = Partial<

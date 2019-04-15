@@ -5,23 +5,23 @@ import { memoize } from './utils'
 import { AsyncSelectorResult, asyncSelectorResult, ensureAsyncSelectorResult } from './AsyncSelectorResult'
 import { combineTracked } from './Tracked'
 
-export function createAsyncSelector<AppState, Command, P1, Result>(
-  s1: Selector<AppState, P1 | AsyncSelectorResult<AppState, Command, P1>>,
-  fn: (p1: P1) => Result | AsyncValue<Command, Result>
-): AsyncSelector<AppState, Command, Result>
+export function createAsyncSelector<AppState, Command1, P1, Result>(
+  s1: Selector<AppState, P1 | AsyncSelectorResult<AppState, Command1, P1>>,
+  fn: (p1: P1) => Result | AsyncValue<Command1, Result>
+): AsyncSelector<AppState, Command1, Result>
 
-export function createAsyncSelector<AppState, Command, P1, P2, Result>(
-  s1: Selector<AppState, P1 | AsyncSelectorResult<AppState, Command, P1>>,
-  s2: Selector<AppState, P2 | AsyncSelectorResult<AppState, Command, P2>>,
-  fn: (p1: P1, p2: P2) => Result | AsyncValue<Command, Result>
-): AsyncSelector<AppState, Command, Result>
+export function createAsyncSelector<AppState, Command1, Command2, P1, P2, Result>(
+  s1: Selector<AppState, P1 | AsyncSelectorResult<AppState, Command1, P1>>,
+  s2: Selector<AppState, P2 | AsyncSelectorResult<AppState, Command2, P2>>,
+  fn: (p1: P1, p2: P2) => Result | AsyncValue<Command1 | Command2, Result>
+): AsyncSelector<AppState, Command1, Result>
 
-export function createAsyncSelector<AppState, Command, P1, P2, P3, Result>(
-  s1: Selector<AppState, P1 | AsyncSelectorResult<AppState, Command, P1>>,
-  s2: Selector<AppState, P2 | AsyncSelectorResult<AppState, Command, P2>>,
-  s3: Selector<AppState, P3 | AsyncSelectorResult<AppState, Command, P3>>,
-  fn: (p1: P1, p2: P2, p3: P3) => Result | AsyncValue<Command, Result>
-): AsyncSelector<AppState, Command, Result>
+export function createAsyncSelector<AppState, Command1, Command2, Command3, P1, P2, P3, Result>(
+  s1: Selector<AppState, P1 | AsyncSelectorResult<AppState, Command1, P1>>,
+  s2: Selector<AppState, P2 | AsyncSelectorResult<AppState, Command2, P2>>,
+  s3: Selector<AppState, P3 | AsyncSelectorResult<AppState, Command3, P3>>,
+  fn: (p1: P1, p2: P2, p3: P3) => Result | AsyncValue<Command1 | Command2 | Command3, Result>
+): AsyncSelector<AppState, Command1, Result>
 
 export function createAsyncSelector<AppState, Command, Result>(...args: any[]): AsyncSelector<AppState, Command, Result> {
   // To maintain a modicum of type safety:
