@@ -327,4 +327,52 @@ describe('integration', () => {
       comments: [comment1, comment2, comment3, comment5]
     })
   })
+
+  it('should dispatch only one command when a component depends on the same selector in two differnt ways', () => {
+    type AsyncProps = Readonly<{
+      booksOnce: Book[]
+      booksTwice: Book[]
+    }>
+
+    type SyncProps = Readonly<{}>
+
+    type Props = NonePartial<AsyncProps> & SyncProps
+
+    function mapStateToSyncProps(_appState: AppState): Pick<Props, never> {
+      return {}
+    }
+
+    function mapStateToAsyncProps(appState: AppState): PickAsyncProps<AppState, Command, Props, 'booksOnce' | 'booksTwice'> {
+      return {
+        booksOnce: asyncBooksSelector(appState),
+        booksTwice: asyncBooksSelector(appState)
+      }
+    }
+
+    let outerComponentState: OuterComponentState<AppState, Command, AsyncProps, SyncProps> = {
+      asyncStateProps: mapStateToAsyncProps(appState),
+      syncStateProps: mapStateToSyncProps(appState)
+    }
+    const outerComponentStates = [outerComponentState]
+
+    const subscriber = createAppStateSubscriber(
+      mapStateToAsyncProps,
+      mapStateToSyncProps,
+      commandExecutor,
+      getState,
+      () => outerComponentState,
+      nextOuterComponentState => {
+        outerComponentState = nextOuterComponentState
+        outerComponentStates.push(outerComponentState)
+      }
+    )
+    subscriber()
+    flush()
+    subscriber()
+    expect(getInnerComponentState(outerComponentStates)).toEqual({
+      booksOnce: booksOnServer,
+      booksTwice: booksOnServer
+    })
+    expect(commandsExecuted).toHaveLength(1)
+  })
 })
