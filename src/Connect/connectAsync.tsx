@@ -14,7 +14,7 @@ export function connectAsync<AppState, AsyncStateProps, SyncStateProps, Dispatch
   mapStateToAsyncStateProps: (appState: AppState) => AsyncSelectorResults<AppState, Command, AsyncStateProps>,
   mapStateToSyncStateProps: (appState: AppState) => SyncStateProps,
   mapDispatchToProps: (dispatch: Redux.Dispatch<Redux.Action>) => DispatchProps,
-  commandExecutor: CommandExecutor<Command>
+  createCommandExecutor: (dispatch: Redux.Dispatch<Redux.Action>, getState: () => AppState) => CommandExecutor<Command>
 ) {
   type OuterComponentProps = Readonly<{
     store: Redux.Store<AppState, Redux.AnyAction>
@@ -23,6 +23,7 @@ export function connectAsync<AppState, AsyncStateProps, SyncStateProps, Dispatch
   class OuterComponent extends React.Component<OuterComponentProps, OuterComponentState<AppState, Command, AsyncStateProps, SyncStateProps>> {
     private unsubscribeToStore: Redux.Unsubscribe = (): void => undefined
     private readonly dispatchProps: DispatchProps
+    private readonly commandExecutor: CommandExecutor<Command>
 
     constructor(props: OuterComponentProps) {
       super(props)
@@ -32,11 +33,19 @@ export function connectAsync<AppState, AsyncStateProps, SyncStateProps, Dispatch
         asyncStateProps: mapStateToAsyncStateProps(initialAppState),
         syncStateProps: mapStateToSyncStateProps(initialAppState)
       }
+      this.commandExecutor = createCommandExecutor(props.store.dispatch, props.store.getState)
     }
 
     private subscribeToStore() {
       this.unsubscribeToStore()
-      const subscriber = createAppStateSubscriber(mapStateToAsyncStateProps, mapStateToSyncStateProps, commandExecutor, this.props.store.getState, () => this.state, this.setState)
+      const subscriber = createAppStateSubscriber(
+        mapStateToAsyncStateProps,
+        mapStateToSyncStateProps,
+        this.commandExecutor,
+        this.props.store.getState,
+        () => this.state,
+        this.setState
+      )
       this.unsubscribeToStore = this.props.store.subscribe(subscriber)
       subscriber()
     }
