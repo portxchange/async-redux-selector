@@ -1,8 +1,9 @@
 {
   "name": "selectorbeak",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Selectors that provide a way to fetch data by themselves",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "npm run clean && tsc -p . --p tsconfig.test.json && jest --no-cache",
     "coverage": "npm run clean && tsc -p . --p tsconfig.test.json && jest --no-cache --coverage",

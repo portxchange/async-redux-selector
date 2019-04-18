@@ -12,7 +12,7 @@ import { withPrevious, flatMap } from '../../utils'
 import { shouldComponentUpdate } from '../../Connect/shouldComponentUpdate'
 import { getInnerComponentProps } from '../../Connect/getInnerComponentProps'
 import { createTrackedSelector } from '../../createTrackedSelector'
-import { PickAsyncProps } from '../Connect/PickAsyncProps'
+import { PickAsyncProps } from '../../Connect/PickAsyncProps'
 
 describe('integration', () => {
   ////////////////////////////////////

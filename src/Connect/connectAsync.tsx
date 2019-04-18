@@ -44,7 +44,7 @@ export function connectAsync<AppState, AsyncStateProps, SyncStateProps, Dispatch
         this.commandExecutor,
         this.props.store.getState,
         () => this.state,
-        this.setState
+        state => this.setState(state)
       )
       this.unsubscribeToStore = this.props.store.subscribe(subscriber)
       subscriber()
