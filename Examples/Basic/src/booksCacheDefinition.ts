@@ -1,7 +1,7 @@
 import { createCacheDefinition, defaultLimiter } from 'selectorbeak'
-import { AppState, QueryString, Book, None } from './AppState'
+import { AppState, QueryString, Book } from './AppState'
 
-export const booksCacheDefinition = createCacheDefinition<AppState, QueryString, Book[], None>(
+export const booksCacheDefinition = createCacheDefinition<AppState, QueryString, Book[], null>(
   'books',
   appState => appState.booksCache,
   (left, right) => left === right,

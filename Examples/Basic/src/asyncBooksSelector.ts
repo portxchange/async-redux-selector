@@ -1,12 +1,12 @@
 import { createAsyncSelector, createTrackedSelector } from 'selectorbeak'
 import { queryStringSelector } from './queryStringSelector'
 import { booksCacheDefinition } from './booksCacheDefinition'
-import { fetchBooksCommand } from './commands'
+import { fetchBooks } from './fetchBooks'
 
 export const asyncBooksSelector = createAsyncSelector(
   createTrackedSelector(queryStringSelector, (left, right) => left === right),
   booksCacheDefinition.selector,
   (queryString, booksCache) => {
-    return booksCache.getFor(queryString).orElse(fetchBooksCommand(queryString))
+    return booksCache.getFor(queryString).orFetch(() => fetchBooks(queryString))
   }
 )

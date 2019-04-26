@@ -16,7 +16,7 @@
     "react-dom": "^16.8.6",
     "react-redux": "^7.0.2",
     "redux": "^4.0.1",
-    "selectorbeak": "0.0.2"
+    "selectorbeak": "0.0.4"
   },
   "devDependencies": {
     "webpack": "^4.30.0",

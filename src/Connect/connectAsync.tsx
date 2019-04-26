@@ -8,6 +8,17 @@ import { getInnerComponentProps } from './getInnerComponentProps'
 import { shouldComponentUpdate } from './shouldComponentUpdate'
 import { OuterComponentState } from './OuterComponentState'
 import { createAppStateSubscriber } from './createAppStateSubscriber'
+import { FetchCommand } from '../FetchCommand'
+import { createFetchCommandExecutor } from '../createFetchCommandExecutor'
+
+export function connectAsyncSimple<AppState, AsyncStateProps, SyncStateProps, DispatchProps>(
+  Component: React.ComponentType<NonePartial<AsyncStateProps> & SyncStateProps & DispatchProps>,
+  mapStateToAsyncStateProps: (appState: AppState) => AsyncSelectorResults<AppState, FetchCommand<any, any>, AsyncStateProps>,
+  mapStateToSyncStateProps: (appState: AppState) => SyncStateProps,
+  mapDispatchToProps: (dispatch: Redux.Dispatch<Redux.Action>) => DispatchProps
+) {
+  return connectAsync(Component, mapStateToAsyncStateProps, mapStateToSyncStateProps, mapDispatchToProps, createFetchCommandExecutor)
+}
 
 export function connectAsync<AppState, AsyncStateProps, SyncStateProps, DispatchProps, Command>(
   Component: React.ComponentType<NonePartial<AsyncStateProps> & SyncStateProps & DispatchProps>,

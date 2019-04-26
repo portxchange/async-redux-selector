@@ -1,9 +1,9 @@
 import * as React from 'react'
-import { Book, None, none, AppState } from './AppState'
-import { PickAsyncProps, connectAsync } from 'selectorbeak'
+import { Book, AppState } from './AppState'
+import { PickAsyncProps, connectAsyncSimple } from 'selectorbeak'
 import { asyncBooksSelector } from './asyncBooksSelector'
-import { createCommandExecutor } from './createCommandExecutor'
-import { Command } from './commands'
+import { None, none } from 'selectorbeak'
+import { FetchCommand } from 'selectorbeak/dist/FetchCommand'
 
 type PresentationalComponentProps = Readonly<{
   books: Book[] | None
@@ -23,7 +23,7 @@ export const PresentationalComponent = (props: PresentationalComponentProps) => 
   )
 }
 
-function mapStateToAsyncProps(appState: AppState): PickAsyncProps<AppState, Command, PresentationalComponentProps, 'books'> {
+function mapStateToAsyncProps(appState: AppState): PickAsyncProps<AppState, FetchCommand<any, any>, PresentationalComponentProps, 'books'> {
   return {
     books: asyncBooksSelector(appState)
   }
@@ -37,4 +37,4 @@ function mapDispatchToProps(): Pick<PresentationalComponentProps, never> {
   return []
 }
 
-export const Books = connectAsync(PresentationalComponent, mapStateToAsyncProps, mapStateToSyncProps, mapDispatchToProps, createCommandExecutor)
+export const Books = connectAsyncSimple(PresentationalComponent, mapStateToAsyncProps, mapStateToSyncProps, mapDispatchToProps)
