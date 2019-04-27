@@ -1,8 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "declaration": true,
-    "lib": ["es6", "dom"]
+    "declaration": true
   },
   "exclude": ["node_modules", "src/test"]
 }

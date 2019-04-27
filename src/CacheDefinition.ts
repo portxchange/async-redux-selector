@@ -7,29 +7,36 @@ import { GenericAction, AwaitValue, ReceiveValue, awaitValue, receiveValue } fro
 import { createReducer } from './createReducer'
 import { FetchCommand, fetchCommand } from './FetchCommand'
 
-export type CacheApiGetFor<Key, Value> = Readonly<{
+export type CacheApiGetFor<Value> = Readonly<{
   orElse<Command>(command: Command): AsyncValue<Command, Value>
-  orFetch(promise: () => Promise<Value>): AsyncValue<FetchCommand<Key, Value>, Value>
+  orFetch(promise: () => Promise<Value>): AsyncValue<FetchCommand, Value>
+  orFetch<Meta>(promise: () => Promise<Value>, meta: Meta): AsyncValue<FetchCommand, Value>
 }>
 
-export function cacheApiGetFor<Key, Value, Meta>(cacheId: string, cache: Cache<Key, Value, Meta>, key: Key, keysAreEqual: Equality<Key>): CacheApiGetFor<Key, Value> {
+export function cacheApiGetFor<Key, Value, Meta>(cacheId: string, cache: Cache<Key, Value, Meta>, key: Key, keysAreEqual: Equality<Key>): CacheApiGetFor<Value> {
+  function orElse<Command>(command: Command): AsyncValue<Command, Value> {
+    return createAsyncResult(cache, key, keysAreEqual, command)
+  }
+
+  function orFetch(promise: () => Promise<Value>): AsyncValue<FetchCommand, Value>
+  function orFetch<Meta>(promise: () => Promise<Value>, meta: Meta): AsyncValue<FetchCommand, Value>
+  function orFetch<Meta>(promise: () => Promise<Value>, meta: Meta | null = null): AsyncValue<FetchCommand, Value> {
+    return createAsyncResult(cache, key, keysAreEqual, fetchCommand(cacheId, key, promise, meta))
+  }
+
   return {
-    orElse<Command>(command: Command): AsyncValue<Command, Value> {
-      return createAsyncResult(cache, key, keysAreEqual, command)
-    },
-    orFetch(promise: () => Promise<Value>): AsyncValue<FetchCommand<Key, Value>, Value> {
-      return createAsyncResult(cache, key, keysAreEqual, fetchCommand(cacheId, key, promise))
-    }
+    orElse,
+    orFetch
   }
 }
 
 export type CacheApi<Key, Value> = Readonly<{
-  getFor(key: Key): CacheApiGetFor<Key, Value>
+  getFor(key: Key): CacheApiGetFor<Value>
 }>
 
 export function cacheApi<Key, Value, Meta>(cacheId: string, cache: Cache<Key, Value, Meta>, keysAreEqual: Equality<Key>): CacheApi<Key, Value> {
   return {
-    getFor(key: Key): CacheApiGetFor<Key, Value> {
+    getFor(key: Key): CacheApiGetFor<Value> {
       return cacheApiGetFor(cacheId, cache, key, keysAreEqual)
     }
   }

@@ -8,7 +8,7 @@ import { CommandExecutor } from '../../CommandExecutor'
 import { createAsyncSelector } from '../../createAsyncSelector'
 import { OuterComponentState } from '../../Connect/OuterComponentState'
 import { createAppStateSubscriber } from '../../Connect/createAppStateSubscriber'
-import { withPrevious } from '../../utils'
+import { withPrevious, flatMap } from '../../utils'
 import { shouldComponentUpdate } from '../../Connect/shouldComponentUpdate'
 import { getInnerComponentProps } from '../../Connect/getInnerComponentProps'
 import { createTrackedSelector } from '../../createTrackedSelector'
@@ -157,7 +157,7 @@ describe('integration', () => {
   })
 
   const asyncCommentsSelector = createAsyncSelector(asyncBooksSelector, commentsCacheDefinition.selector, (books, commentsCache) => {
-    const commentIds = books.flatMap(book => book.comments)
+    const commentIds = flatMap(books, book => book.comments)
     return commentsCache.getFor(commentIds).orElse<FetchCommentsCommand>({ type: 'FETCH_COMMENTS', commentIds })
   })
 
