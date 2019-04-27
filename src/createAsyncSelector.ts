@@ -4,6 +4,47 @@ import { Selector } from './Selector'
 import { memoize } from './utils'
 import { AsyncSelectorResult, asyncSelectorResult, ensureAsyncSelectorResult } from './AsyncSelectorResult'
 import { combineTracked } from './Tracked'
+import { ASYNC_VALUE_RECEIVED, ASYNC_AWAITING_VALUE } from './const'
+import { arraysAreEqual } from './Equality'
+
+// This equality function compares two `AsyncValue` instances.
+// When they are not strictly equal (the same reference), we
+// compare the values *inside* the `AsyncValue` instances for
+// equality instead. This makes a memoized function operating
+// on these `AsyncValue` instances more efficient.
+function asyncValuesAreEqual<Command, Value>(left: AsyncValue<Command, Value>, right: AsyncValue<Command, Value>): boolean {
+  if (left === right) {
+    return true
+  }
+
+  if (left.type === ASYNC_VALUE_RECEIVED && right.type === ASYNC_VALUE_RECEIVED) {
+    // Only return the new `AsyncValue` if the value is actually different:
+    return left.value === right.value
+  } else if (left.type === ASYNC_AWAITING_VALUE && right.type === ASYNC_AWAITING_VALUE) {
+    // If two `AsyncValue` instances are both `AsyncAwaitingValue`, they
+    // are equal:
+    return true
+  } else {
+    // Even if two commands are exactly equal, it doesn't really matter if
+    // we tell here that they aren't. Commands are very volatile, and are
+    // supposed to disappear quickly after the are created, so performance
+    // won't suffer much by this approximation.
+    return false
+  }
+}
+
+function asyncSelectorResultsAreEqual<AppState, Command, Value>(
+  left: AsyncSelectorResult<AppState, Command, Value>,
+  right: AsyncSelectorResult<AppState, Command, Value>
+): boolean {
+  if (left === right) {
+    return true
+  }
+
+  // We ignore the `trackedUserInput` as there is no way that there's a difference
+  // there if two `AsyncSelectorResult`-instances are created by the same selectors:
+  return asyncValuesAreEqual(left.asyncValue, right.asyncValue)
+}
 
 export function createAsyncSelector<AppState, Command1, P1, Result>(
   s1: Selector<AppState, P1 | AsyncSelectorResult<AppState, Command1, P1>>,
@@ -37,6 +78,11 @@ export function createAsyncSelector<AppState, Command, Result>(...args: any[]): 
         const trackedUserInput = trackedUserInputs.reduce(combineTracked, [])
 
         return asyncSelectorResult(asyncValue, trackedUserInput)
+      },
+      {
+        paramsAreEqual: ([left]: [Array<AsyncSelectorResult<AppState, Command, Arg>>], [right]: [Array<AsyncSelectorResult<AppState, Command, Arg>>]) =>
+          arraysAreEqual(left, right, asyncSelectorResultsAreEqual),
+        resultsAreEqual: asyncSelectorResultsAreEqual
       }
     )
 

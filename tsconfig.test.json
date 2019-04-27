@@ -2,6 +2,7 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "declaration": false,
+    "lib": ["es6", "dom", "esnext.array"]
   },
   "exclude": ["node_modules"]
 }

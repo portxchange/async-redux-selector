@@ -59,6 +59,16 @@ describe('createAsyncSelector', () => {
 
         expect(numberOfTimesExecuted).toEqual(3)
       })
+
+      it('should return the exact same reference if the function produces the same result', () => {
+        const res = createAsyncSelector(stringSelector, numberSelector, (s, n) => s.length + n)
+
+        // Call the selector two times, with the different arguments but with the same result:
+        const toVerify1 = res({ version: 1, num: 1, str: 'one' })
+        const toVerify2 = res({ version: 2, num: 1, str: 'one' })
+
+        expect(toVerify1).toBe(toVerify2)
+      })
     })
 
     describe('producing a `AsyncValue`', () => {
@@ -84,6 +94,16 @@ describe('createAsyncSelector', () => {
         const toVerify = asyncSelector(initialAppState)
         const expected = asyncSelectorResult<AppState, Command, number>(asyncValueReceived(5), [])
         expect(toVerify).toEqual(expected)
+      })
+
+      it('should return the exact same reference if the function produces the same result', () => {
+        const res = createAsyncSelector(stringSelector, numberSelector, (s, n) => asyncValueReceived(s.length + n))
+
+        // Call the selector two times, with the different arguments but with the same result:
+        const toVerify1 = res({ version: 1, num: 1, str: 'one' })
+        const toVerify2 = res({ version: 2, num: 1, str: 'one' })
+
+        expect(toVerify1).toBe(toVerify2)
       })
     })
   })
@@ -204,6 +224,16 @@ describe('createAsyncSelector', () => {
 
         expect(numberOfTimesExecuted).toEqual(3)
       })
+
+      it('should return the exact same reference if the function produces the same result', () => {
+        const res = createAsyncSelector(asyncStringSelector, asyncNumberSelector, boolSelector, (s, n, b) => s.length + n * (b ? 2 : 1))
+
+        // Call the selector two times, with the different arguments but with the same result:
+        const toVerify1 = res({ ...initialAppState, version: 1, str: asyncValueReceived('one'), num: asyncValueReceived(1) })
+        const toVerify2 = res({ ...initialAppState, version: 2, str: asyncValueReceived('one'), num: asyncValueReceived(1) })
+
+        expect(toVerify1).toBe(toVerify2)
+      })
     })
 
     describe('producing a `AsyncValue`', () => {
@@ -231,6 +261,16 @@ describe('createAsyncSelector', () => {
         const toVerify = res(initialAppState)
         const expected = asyncSelectorResult<AppState, Command, number>(asyncValueReceived(5), [])
         expect(toVerify).toEqual(expected)
+      })
+
+      it('should return the exact same reference if the function produces the same result', () => {
+        const res = createAsyncSelector(asyncStringSelector, asyncNumberSelector, boolSelector, (s, n, b) => asyncValueReceived(s.length + n * (b ? 2 : 1)))
+
+        // Call the selector two times, with the different arguments but with the same result:
+        const toVerify1 = res({ ...initialAppState, version: 1, str: asyncValueReceived('one'), num: asyncValueReceived(1) })
+        const toVerify2 = res({ ...initialAppState, version: 2, str: asyncValueReceived('one'), num: asyncValueReceived(1) })
+
+        expect(toVerify1).toBe(toVerify2)
       })
     })
   })
