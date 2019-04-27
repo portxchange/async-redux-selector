@@ -149,16 +149,16 @@ describe('integration', () => {
   }
 
   const asyncBooksSelector = createAsyncSelector(createTrackedSelector(queryStringSelector, areSameReference), booksCacheDefinition.selector, (queryString, booksCache) => {
-    return booksCache.getFor(queryString).orElse<FetchBooksCommand>({ type: 'FETCH_BOOKS', queryString })
+    return booksCache.getFor(queryString).orElse<Command>({ type: 'FETCH_BOOKS', queryString })
   })
 
   const asyncUserSelector = createAsyncSelector(userCacheDefinition.selector, userCache => {
-    return userCache.getFor(none).orElse<FetchUserCommand>({ type: 'FETCH_USER' })
+    return userCache.getFor(none).orElse<Command>({ type: 'FETCH_USER' })
   })
 
   const asyncCommentsSelector = createAsyncSelector(asyncBooksSelector, commentsCacheDefinition.selector, (books, commentsCache) => {
     const commentIds = flatMap(books, book => book.comments)
-    return commentsCache.getFor(commentIds).orElse<FetchCommentsCommand>({ type: 'FETCH_COMMENTS', commentIds })
+    return commentsCache.getFor(commentIds).orElse<Command>({ type: 'FETCH_COMMENTS', commentIds })
   })
 
   ////////////////////////////////////
