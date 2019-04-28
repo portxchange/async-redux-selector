@@ -295,4 +295,42 @@ describe('createAsyncSelector', () => {
       expect(someHasChanged(asyncSelectorResult.trackedUserInput, nextAppState)).toEqual(true)
     })
   })
+
+  describe('passing props', () => {
+    type AppState = Readonly<{ version: number; num: AsyncValue<Command, number> }>
+    type Props = Readonly<{ version: number; str: string }>
+    const asyncNumberSelector = (appState: AppState) => asyncSelectorResult<AppState, Command, number>(appState.num, [])
+    const stringSelector = (_appState: AppState, props: Props) => props.str
+
+    it('should be able to use data from second argument', () => {
+      const res = createAsyncSelector(stringSelector, asyncNumberSelector, (s, n) => s.length + n)
+      const toVerify = res({ version: 1, num: asyncValueReceived(4) }, { version: 1, str: 'four' })
+      const expected = asyncSelectorResult<AppState, Command, number>(asyncValueReceived(8), [])
+      expect(toVerify).toEqual(expected)
+    })
+
+    it('should run only once when called with the same arguments twice', () => {
+      let numberOfTimesExecuted = 0
+      const asyncSelector = createAsyncSelector(stringSelector, asyncNumberSelector, (s, n) => {
+        numberOfTimesExecuted += 1
+        return s.length + n
+      })
+
+      // Call the selector twice, with the same arguments:
+      asyncSelector({ version: 1, num: asyncValueReceived(4) }, { version: 1, str: 'four' })
+      asyncSelector({ version: 2, num: asyncValueReceived(4) }, { version: 2, str: 'four' })
+
+      expect(numberOfTimesExecuted).toEqual(1)
+    })
+
+    it('should return the exact same reference if the function produces the same result', () => {
+      const res = createAsyncSelector(stringSelector, asyncNumberSelector, (s, n) => s.length + n)
+
+      // Call the selector two times, with the different arguments but with the same result:
+      const toVerify1 = res({ version: 1, num: asyncValueReceived(4) }, { version: 1, str: 'four' })
+      const toVerify2 = res({ version: 2, num: asyncValueReceived(3) }, { version: 2, str: 'three' })
+
+      expect(toVerify1).toBe(toVerify2)
+    })
+  })
 })
