@@ -1,5 +1,5 @@
 import * as Redux from 'redux'
-import { awaitValue, receiveValue } from './Action'
+import { awaitValue, receiveValue } from './Store/Action'
 import { CommandExecutor } from './CommandExecutor'
 
 export const FETCH_COMMAND: 'FETCH_COMMAND' = 'FETCH_COMMAND'

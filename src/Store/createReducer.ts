@@ -1,8 +1,8 @@
 import { Cache } from './Cache'
 import { GenericAction, isAwaitValue, isReceiveValue, isMatchingAwaitingValue } from './Action'
-import { Equality } from './Equality'
-import { awaitingValue, valueReceived } from './CacheItem'
-import { not } from './Predicate'
+import { Equality } from '../Equality'
+import { awaitingValue, valueReceived } from '../CacheItem'
+import { not } from '../Predicate'
 
 export function createReducer<Key, Value, Meta>(cacheId: string, keysAreEqual: Equality<Key>, limiter: (cache: Cache<Key, Value, Meta>) => Cache<Key, Value, Meta>) {
   return function(state: Cache<Key, Value, Meta> = [], action: GenericAction): Cache<Key, Value, Meta> {

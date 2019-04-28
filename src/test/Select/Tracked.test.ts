@@ -1,5 +1,5 @@
-import { createTracked, someHasChanged, combineTracked } from '../Tracked'
-import { areSameReference } from '../Equality'
+import { createTracked, someHasChanged, combineTracked } from '../../Select/Tracked'
+import { areSameReference } from '../../Equality'
 
 describe('Tracked', () => {
   type AppState = Readonly<{

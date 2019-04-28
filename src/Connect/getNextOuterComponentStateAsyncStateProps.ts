@@ -1,8 +1,8 @@
 import { CommandExecutor } from '../CommandExecutor'
-import { AsyncSelectorResults, AsyncSelectorResult } from '../AsyncSelectorResult'
+import { AsyncSelectorResults, AsyncSelectorResult } from '../Select/AsyncSelectorResult'
 import { keys, head } from '../utils'
 import { getCommands } from '../AsyncValue'
-import { someHasChanged } from '../Tracked'
+import { someHasChanged } from '../Select/Tracked'
 import { none } from '../None'
 import { ASYNC_VALUE_RECEIVED } from '../const'
 

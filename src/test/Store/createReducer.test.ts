@@ -1,10 +1,10 @@
-import { GenericAction, awaitValue, receiveValue } from '../Action'
-import { Cache } from '../Cache'
-import { createReducer } from '../createReducer'
-import { awaitingValue, valueReceived } from '../CacheItem'
-import { defaultLimiter } from '../defaultLimiter'
+import { GenericAction, awaitValue, receiveValue } from '../../Store/Action'
+import { Cache } from '../../Store/Cache'
+import { createReducer } from '../../Store/createReducer'
+import { awaitingValue, valueReceived } from '../../CacheItem'
+import { defaultLimiter } from '../../Store/defaultLimiter'
 
-describe('createSelector', () => {
+describe('createReducer', () => {
   type Key = number
   type Value = string
   type Meta = { requestId: string }

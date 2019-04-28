@@ -1,4 +1,4 @@
-import { AsyncValue, asyncValueReceived } from './AsyncValue'
+import { AsyncValue, asyncValueReceived } from '../AsyncValue'
 import { Tracked } from './Tracked'
 
 type AsyncSelectorResultType = 'async-selector-result' & { 'async-selector-result': void } | void & { 'async-selector-result': void }

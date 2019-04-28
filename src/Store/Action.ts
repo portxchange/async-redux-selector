@@ -1,5 +1,5 @@
-import { RECEIVE_VALUE, AWAIT_VALUE, AWAITING_VALUE } from './const'
-import { CacheItem } from './CacheItem'
+import { RECEIVE_VALUE, AWAIT_VALUE, AWAITING_VALUE } from '../const'
+import { CacheItem } from '../CacheItem'
 
 export type GenericAction = Readonly<{ type: string }>
 

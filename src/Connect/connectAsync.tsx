@@ -2,22 +2,12 @@ import * as React from 'react'
 import * as ReactRedux from 'react-redux'
 import * as Redux from 'redux'
 import { NonePartial } from '../None'
-import { AsyncSelectorResults } from '../AsyncSelectorResult'
+import { AsyncSelectorResults } from '../Select/AsyncSelectorResult'
 import { CommandExecutor } from '../CommandExecutor'
 import { getInnerComponentProps } from './getInnerComponentProps'
 import { shouldComponentUpdate } from './shouldComponentUpdate'
 import { OuterComponentState } from './OuterComponentState'
 import { createAppStateSubscriber } from './createAppStateSubscriber'
-import { FetchCommand, createFetchCommandExecutor } from '../FetchCommand'
-
-export function connectAsyncSimple<AppState, AsyncStateProps, SyncStateProps, DispatchProps>(
-  Component: React.ComponentType<NonePartial<AsyncStateProps> & SyncStateProps & DispatchProps>,
-  mapStateToAsyncStateProps: (appState: AppState) => AsyncSelectorResults<AppState, FetchCommand, AsyncStateProps>,
-  mapStateToSyncStateProps: (appState: AppState) => SyncStateProps,
-  mapDispatchToProps: (dispatch: Redux.Dispatch<Redux.Action>) => DispatchProps
-) {
-  return connectAsync(Component, mapStateToAsyncStateProps, mapStateToSyncStateProps, mapDispatchToProps, createFetchCommandExecutor)
-}
 
 export function connectAsync<AppState, AsyncStateProps, SyncStateProps, DispatchProps, Command>(
   Component: React.ComponentType<NonePartial<AsyncStateProps> & SyncStateProps & DispatchProps>,

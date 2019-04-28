@@ -1,8 +1,8 @@
 import { Selector } from './Selector'
 import { AsyncSelector } from './AsyncSelector'
-import { memoize } from './utils'
-import { asyncValueReceived } from './AsyncValue'
-import { Equality } from './Equality'
+import { memoize } from '../utils'
+import { asyncValueReceived } from '../AsyncValue'
+import { Equality } from '../Equality'
 import { createTracked } from './Tracked'
 import { asyncSelectorResult } from './AsyncSelectorResult'
 

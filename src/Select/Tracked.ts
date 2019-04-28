@@ -1,4 +1,4 @@
-import { Equality } from './Equality'
+import { Equality } from '../Equality'
 
 export type Tracked<AppState> = Readonly<{
   source: (appState: AppState) => unknown

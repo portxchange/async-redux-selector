@@ -1,5 +1,5 @@
 import { getNextOuterComponentStateAsyncStateProps } from './getNextOuterComponentStateAsyncStateProps'
-import { AsyncSelectorResults } from '../AsyncSelectorResult'
+import { AsyncSelectorResults } from '../Select/AsyncSelectorResult'
 import { CommandExecutor } from '../CommandExecutor'
 import { OuterComponentState } from './OuterComponentState'
 

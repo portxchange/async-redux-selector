@@ -1,9 +1,9 @@
-import { createAsyncSelector } from '../createAsyncSelector'
-import { AsyncValue, asyncValueReceived, asyncCommand, asyncAwaitingValue } from '../AsyncValue'
-import { areSameReference } from '../Equality'
-import { createTrackedSelector } from '../createTrackedSelector'
-import { someHasChanged } from '../Tracked'
-import { asyncSelectorResult } from '../AsyncSelectorResult'
+import { createAsyncSelector } from '../../Select/createAsyncSelector'
+import { AsyncValue, asyncValueReceived, asyncCommand, asyncAwaitingValue } from '../../AsyncValue'
+import { areSameReference } from '../../Equality'
+import { createTrackedSelector } from '../../Select/createTrackedSelector'
+import { someHasChanged } from '../../Select/Tracked'
+import { asyncSelectorResult } from '../../Select/AsyncSelectorResult'
 
 describe('createAsyncSelector', () => {
   enum CommandType {

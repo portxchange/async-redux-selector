@@ -1,11 +1,11 @@
-import { AsyncValue, combineMany, flattenIfNecessary } from './AsyncValue'
+import { AsyncValue, combineMany, flattenIfNecessary } from '../AsyncValue'
 import { AsyncSelector, AsyncSelectorWithProps } from './AsyncSelector'
 import { Selector, SelectorWithProps } from './Selector'
-import { memoize } from './utils'
+import { memoize } from '../utils'
 import { AsyncSelectorResult, asyncSelectorResult, ensureAsyncSelectorResult } from './AsyncSelectorResult'
 import { combineTracked } from './Tracked'
-import { ASYNC_VALUE_RECEIVED, ASYNC_AWAITING_VALUE } from './const'
-import { arraysAreEqual } from './Equality'
+import { ASYNC_VALUE_RECEIVED, ASYNC_AWAITING_VALUE } from '../const'
+import { arraysAreEqual } from '../Equality'
 
 // This equality function compares two `AsyncValue` instances.
 // When they are not strictly equal (the same reference), we

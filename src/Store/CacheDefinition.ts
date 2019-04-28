@@ -1,11 +1,11 @@
-import { Selector } from './Selector'
+import { Selector } from '../Select/Selector'
 import { Cache } from './Cache'
-import { AsyncValue } from './AsyncValue'
-import { Equality } from './Equality'
-import { createAsyncResult } from './createAsyncResult'
+import { AsyncValue } from '../AsyncValue'
+import { Equality } from '../Equality'
+import { createAsyncValue } from '../createAsyncValue'
 import { GenericAction, AwaitValue, ReceiveValue, awaitValue, receiveValue } from './Action'
 import { createReducer } from './createReducer'
-import { FetchCommand, fetchCommand } from './FetchCommand'
+import { FetchCommand, fetchCommand } from '../FetchCommand'
 
 export type CacheApiGetFor<Value> = Readonly<{
   orElse<Command>(command: Command): AsyncValue<Command, Value>
@@ -15,13 +15,13 @@ export type CacheApiGetFor<Value> = Readonly<{
 
 export function cacheApiGetFor<Key, Value, Meta>(cacheId: string, cache: Cache<Key, Value, Meta>, key: Key, keysAreEqual: Equality<Key>): CacheApiGetFor<Value> {
   function orElse<Command>(command: Command): AsyncValue<Command, Value> {
-    return createAsyncResult(cache, key, keysAreEqual, command)
+    return createAsyncValue(cache, key, keysAreEqual, command)
   }
 
   function orFetch(promise: () => Promise<Value>): AsyncValue<FetchCommand, Value>
   function orFetch<Meta>(promise: () => Promise<Value>, meta: Meta): AsyncValue<FetchCommand, Value>
   function orFetch<Meta>(promise: () => Promise<Value>, meta: Meta | null = null): AsyncValue<FetchCommand, Value> {
-    return createAsyncResult(cache, key, keysAreEqual, fetchCommand(cacheId, key, promise, meta))
+    return createAsyncValue(cache, key, keysAreEqual, fetchCommand(cacheId, key, promise, meta))
   }
 
   return {

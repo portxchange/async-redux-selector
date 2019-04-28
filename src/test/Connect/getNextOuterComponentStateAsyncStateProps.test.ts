@@ -1,9 +1,9 @@
-import { asyncSelectorResult, AsyncSelectorResults } from '../../AsyncSelectorResult'
+import { asyncSelectorResult, AsyncSelectorResults } from '../../Select/AsyncSelectorResult'
 import { CommandExecutor } from '../../CommandExecutor'
 import { asyncCommand, asyncAwaitingValue, AsyncValue, asyncValueReceived } from '../../AsyncValue'
 import { getNextOuterComponentStateAsyncStateProps } from '../../Connect/getNextOuterComponentStateAsyncStateProps'
 import { areSameReference } from '../../Equality'
-import { Tracked, createTracked } from '../../Tracked'
+import { Tracked, createTracked } from '../../Select/Tracked'
 import { none, NonePartial } from '../../None'
 import { getInnerComponentProps } from '../../Connect/getInnerComponentProps'
 

@@ -1,10 +1,10 @@
-import { Cache } from '../Cache'
-import { None, none } from '../None'
-import { createCacheDefinition } from '../CacheDefinition'
-import { areSameReference } from '../Equality'
-import { defaultLimiter } from '../defaultLimiter'
-import { GenericAction, awaitValue, receiveValue } from '../Action'
-import { AsyncCommand, asyncCommand, AsyncAwaitingValue, asyncAwaitingValue, AsyncValueReceived, asyncValueReceived } from '../AsyncValue'
+import { Cache } from '../../Store/Cache'
+import { None, none } from '../../None'
+import { createCacheDefinition } from '../../Store/CacheDefinition'
+import { areSameReference } from '../../Equality'
+import { defaultLimiter } from '../../Store/defaultLimiter'
+import { GenericAction, awaitValue, receiveValue } from '../../Store/Action'
+import { AsyncCommand, asyncCommand, AsyncAwaitingValue, asyncAwaitingValue, AsyncValueReceived, asyncValueReceived } from '../../AsyncValue'
 
 describe('CacheDefinition', () => {
   type AppState = {

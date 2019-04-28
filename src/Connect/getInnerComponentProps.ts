@@ -1,4 +1,4 @@
-import { AsyncSelectorResults } from '../AsyncSelectorResult'
+import { AsyncSelectorResults } from '../Select/AsyncSelectorResult'
 import { NonePartial, none } from '../None'
 import { keys } from '../utils'
 import { ASYNC_VALUE_RECEIVED } from '../const'
