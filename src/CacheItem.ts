@@ -33,3 +33,6 @@ export function valueReceived<Key, Value, Meta>(key: Key, value: Value, meta: Me
 }
 
 export type CacheItem<Key, Value, Meta> = AwaitingValue<Key, Meta> | ValueReceived<Key, Value, Meta>
+
+// expireForKey
+// update

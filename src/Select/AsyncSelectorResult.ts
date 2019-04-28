@@ -1,5 +1,6 @@
 import { AsyncValue, asyncValueReceived } from '../AsyncValue'
 import { Tracked } from './Tracked'
+import { ASYNC_COMMAND } from '../const'
 
 type AsyncSelectorResultType = 'async-selector-result' & { 'async-selector-result': void } | void & { 'async-selector-result': void }
 const type = 'async-selector-result' as AsyncSelectorResultType
@@ -28,5 +29,16 @@ export function ensureAsyncSelectorResult<AppState, Command, Value>(value: Value
     return value
   } else {
     return asyncSelectorResult<AppState, Command, Value>(asyncValueReceived(value), [])
+  }
+}
+
+export function orElse<AppState, CommandLeft, CommandRight, Left, Right>(
+  left: AsyncSelectorResult<AppState, CommandLeft, Left>,
+  right: AsyncSelectorResult<AppState, CommandRight, Right>
+): AsyncSelectorResult<AppState, CommandLeft | CommandRight, Left | Right> {
+  if (left.asyncValue.type === ASYNC_COMMAND) {
+    return right
+  } else {
+    return left
   }
 }

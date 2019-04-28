@@ -3,11 +3,12 @@ import { AsyncSelectorResults } from '../Select/AsyncSelectorResult'
 import { CommandExecutor } from '../CommandExecutor'
 import { OuterComponentState } from './OuterComponentState'
 
-export function createAppStateSubscriber<AppState, Command, AsyncStateProps, SyncStateProps>(
-  mapStateToAsyncStateProps: (appState: AppState) => AsyncSelectorResults<AppState, Command, AsyncStateProps>,
-  mapStateToSyncStateProps: (appState: AppState) => SyncStateProps,
+export function createAppStateSubscriber<AppState, Command, AsyncStateProps, SyncStateProps, OwnProps>(
+  mapStateToAsyncStateProps: (appState: AppState, ownProps: OwnProps) => AsyncSelectorResults<AppState, Command, AsyncStateProps>,
+  mapStateToSyncStateProps: (appState: AppState, ownProps: OwnProps) => SyncStateProps,
   commandExecutor: CommandExecutor<Command>,
   getAppState: () => AppState,
+  getOwnProps: () => OwnProps,
   getOuterComponentState: () => OuterComponentState<AppState, Command, AsyncStateProps, SyncStateProps>,
   setOuterComponentState: (state: OuterComponentState<AppState, Command, AsyncStateProps, SyncStateProps>) => void
 ) {
@@ -23,13 +24,15 @@ export function createAppStateSubscriber<AppState, Command, AsyncStateProps, Syn
 
     isCurrentlyOnCallStack = true
     const currentOuterComponentState = getOuterComponentState()
-    const nextOuterComponentStateAsyncStateProps = getNextOuterComponentStateAsyncStateProps<AppState, Command, AsyncStateProps>(
+    const ownProps = getOwnProps()
+    const nextOuterComponentStateAsyncStateProps = getNextOuterComponentStateAsyncStateProps<AppState, Command, AsyncStateProps, OwnProps>(
       commandExecutor,
       getAppState,
+      ownProps,
       mapStateToAsyncStateProps,
       currentOuterComponentState.asyncStateProps
     )
-    const nextOuterComponentStateSyncStateProps = mapStateToSyncStateProps(getAppState())
+    const nextOuterComponentStateSyncStateProps = mapStateToSyncStateProps(getAppState(), ownProps)
     setOuterComponentState({
       asyncStateProps: nextOuterComponentStateAsyncStateProps,
       syncStateProps: nextOuterComponentStateSyncStateProps

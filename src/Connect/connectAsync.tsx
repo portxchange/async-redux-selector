@@ -9,15 +9,16 @@ import { shouldComponentUpdate } from './shouldComponentUpdate'
 import { OuterComponentState } from './OuterComponentState'
 import { createAppStateSubscriber } from './createAppStateSubscriber'
 
-export function connectAsync<AppState, AsyncStateProps, SyncStateProps, DispatchProps, Command>(
+export function connectAsync<AppState, AsyncStateProps, SyncStateProps, DispatchProps, OwnProps, Command>(
   Component: React.ComponentType<NonePartial<AsyncStateProps> & SyncStateProps & DispatchProps>,
-  mapStateToAsyncStateProps: (appState: AppState) => AsyncSelectorResults<AppState, Command, AsyncStateProps>,
-  mapStateToSyncStateProps: (appState: AppState) => SyncStateProps,
+  mapStateToAsyncStateProps: (appState: AppState, ownProps: OwnProps) => AsyncSelectorResults<AppState, Command, AsyncStateProps>,
+  mapStateToSyncStateProps: (appState: AppState, ownProps: OwnProps) => SyncStateProps,
   mapDispatchToProps: (dispatch: Redux.Dispatch<Redux.Action>) => DispatchProps,
   createCommandExecutor: (dispatch: Redux.Dispatch<Redux.Action>, getState: () => AppState) => CommandExecutor<Command>
-) {
+): React.ComponentType<OwnProps> {
   type OuterComponentProps = Readonly<{
     store: Redux.Store<AppState, Redux.AnyAction>
+    ownProps: OwnProps
   }>
 
   class OuterComponent extends React.Component<OuterComponentProps, OuterComponentState<AppState, Command, AsyncStateProps, SyncStateProps>> {
@@ -30,8 +31,8 @@ export function connectAsync<AppState, AsyncStateProps, SyncStateProps, Dispatch
       const initialAppState: AppState = props.store.getState()
       this.dispatchProps = mapDispatchToProps(props.store.dispatch)
       this.state = {
-        asyncStateProps: mapStateToAsyncStateProps(initialAppState),
-        syncStateProps: mapStateToSyncStateProps(initialAppState)
+        asyncStateProps: mapStateToAsyncStateProps(initialAppState, props.ownProps),
+        syncStateProps: mapStateToSyncStateProps(initialAppState, props.ownProps)
       }
       this.commandExecutor = createCommandExecutor(props.store.dispatch, props.store.getState)
     }
@@ -43,6 +44,7 @@ export function connectAsync<AppState, AsyncStateProps, SyncStateProps, Dispatch
         mapStateToSyncStateProps,
         this.commandExecutor,
         this.props.store.getState,
+        () => this.props.ownProps,
         () => this.state,
         state => this.setState(state)
       )
@@ -70,5 +72,7 @@ export function connectAsync<AppState, AsyncStateProps, SyncStateProps, Dispatch
     }
   }
 
-  return () => <ReactRedux.ReactReduxContext.Consumer>{({ store }) => <OuterComponent store={store} />}</ReactRedux.ReactReduxContext.Consumer>
+  return (ownProps: OwnProps) => (
+    <ReactRedux.ReactReduxContext.Consumer>{({ store }) => <OuterComponent ownProps={ownProps} store={store} />}</ReactRedux.ReactReduxContext.Consumer>
+  )
 }

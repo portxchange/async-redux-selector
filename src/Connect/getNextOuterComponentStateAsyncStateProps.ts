@@ -56,15 +56,16 @@ function getNextProperty<AppState, Command, Value>(
   }
 }
 
-export function getNextOuterComponentStateAsyncStateProps<AppState, Command, O>(
+export function getNextOuterComponentStateAsyncStateProps<AppState, Command, O, OwnProps>(
   commandExecutor: CommandExecutor<Command>,
   getAppState: () => AppState,
-  mapStateToAsyncProps: (appState: AppState) => AsyncSelectorResults<AppState, Command, O>,
+  ownProps: OwnProps,
+  mapStateToAsyncProps: (appState: AppState, ownProps: OwnProps) => AsyncSelectorResults<AppState, Command, O>,
   prevState: AsyncSelectorResults<AppState, Command, O>
 ): AsyncSelectorResults<AppState, Command, O> {
   // First, execute all commands available.
   let appState = getAppState()
-  let asyncSelectorResults = mapStateToAsyncProps(appState)
+  let asyncSelectorResults = mapStateToAsyncProps(appState, ownProps)
   let nextCommand = getNextCommand(asyncSelectorResults)
   while (nextCommand.type !== NextCommandType.NoCommand) {
     if (nextCommand.type === NextCommandType.CommandAvailable) {
@@ -72,7 +73,7 @@ export function getNextOuterComponentStateAsyncStateProps<AppState, Command, O>(
     }
 
     appState = getAppState()
-    asyncSelectorResults = mapStateToAsyncProps(appState)
+    asyncSelectorResults = mapStateToAsyncProps(appState, ownProps)
     nextCommand = getNextCommand(asyncSelectorResults)
   }
 

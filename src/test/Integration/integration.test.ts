@@ -226,6 +226,7 @@ describe('integration', () => {
       mapStateToSyncProps,
       commandExecutor,
       getState,
+      () => ({}),
       () => outerComponentState,
       nextOuterComponentState => {
         outerComponentState = nextOuterComponentState
@@ -305,6 +306,7 @@ describe('integration', () => {
       mapStateToSyncProps,
       commandExecutor,
       getState,
+      () => ({}),
       () => outerComponentState,
       nextOuterComponentState => {
         outerComponentState = nextOuterComponentState
@@ -360,6 +362,7 @@ describe('integration', () => {
       mapStateToSyncProps,
       commandExecutor,
       getState,
+      () => ({}),
       () => outerComponentState,
       nextOuterComponentState => {
         outerComponentState = nextOuterComponentState
