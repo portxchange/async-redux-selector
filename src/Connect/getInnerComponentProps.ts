@@ -3,8 +3,8 @@ import { NonePartial, none } from '../None'
 import { keys } from '../utils'
 import { ASYNC_VALUE_RECEIVED } from '../const'
 
-export function getInnerComponentProps<AppState, Command, AsyncStateProps, SyncStateProps, DispatchProps>(
-  asyncStatePropsOuter: AsyncSelectorResults<AppState, Command, AsyncStateProps>,
+export function getInnerComponentProps<AppState, OwnProps, Command, AsyncStateProps, SyncStateProps, DispatchProps>(
+  asyncStatePropsOuter: AsyncSelectorResults<AppState, OwnProps, Command, AsyncStateProps>,
   syncStatePropsOuter: SyncStateProps,
   dispatchPropsOuter: DispatchProps
 ): NonePartial<AsyncStateProps> & SyncStateProps & DispatchProps {

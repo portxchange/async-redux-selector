@@ -4,13 +4,13 @@ import { CommandExecutor } from '../CommandExecutor'
 import { OuterComponentState } from './OuterComponentState'
 
 export function createAppStateSubscriber<AppState, Command, AsyncStateProps, SyncStateProps, OwnProps>(
-  mapStateToAsyncStateProps: (appState: AppState, ownProps: OwnProps) => AsyncSelectorResults<AppState, Command, AsyncStateProps>,
+  mapStateToAsyncStateProps: (appState: AppState, ownProps: OwnProps) => AsyncSelectorResults<AppState, OwnProps, Command, AsyncStateProps>,
   mapStateToSyncStateProps: (appState: AppState, ownProps: OwnProps) => SyncStateProps,
   commandExecutor: CommandExecutor<Command>,
   getAppState: () => AppState,
   getOwnProps: () => OwnProps,
-  getOuterComponentState: () => OuterComponentState<AppState, Command, AsyncStateProps, SyncStateProps>,
-  setOuterComponentState: (state: OuterComponentState<AppState, Command, AsyncStateProps, SyncStateProps>) => void
+  getOuterComponentState: () => OuterComponentState<AppState, OwnProps, Command, AsyncStateProps, SyncStateProps>,
+  setOuterComponentState: (state: OuterComponentState<AppState, OwnProps, Command, AsyncStateProps, SyncStateProps>) => void
 ) {
   let isCurrentlyOnCallStack = false
   return () => {

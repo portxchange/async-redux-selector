@@ -1,4 +1,4 @@
-import { Selector } from '../Select/Selector'
+import { SelectorWithoutProps } from '../Select/Selector'
 import { Cache } from './Cache'
 import { AsyncValue } from '../AsyncValue'
 import { Equality } from '../Equality'
@@ -44,17 +44,17 @@ export function cacheApi<Key, Value, Meta>(cacheId: string, cache: Cache<Key, Va
 
 export type CacheDefinition<AppState, Key, Value, Meta> = Readonly<{
   cacheId: string
-  cacheSelector: Selector<AppState, Cache<Key, Value, Meta>>
+  cacheSelector: SelectorWithoutProps<AppState, Cache<Key, Value, Meta>>
   keysAreEqual: Equality<Key>
   reducer: (state: Cache<Key, Value, Meta> | undefined, action: GenericAction) => Cache<Key, Value, Meta>
-  selector: Selector<AppState, CacheApi<Key, Value>>
+  selector: SelectorWithoutProps<AppState, CacheApi<Key, Value>>
   awaitValue(key: Key, requestId: string, meta: Meta): AwaitValue<Key, Meta>
   receiveValue(requestId: string, value: Value): ReceiveValue<Value>
 }>
 
 export function createCacheDefinition<AppState, Key, Value, Meta>(
   cacheId: string,
-  cacheSelector: Selector<AppState, Cache<Key, Value, Meta>>,
+  cacheSelector: SelectorWithoutProps<AppState, Cache<Key, Value, Meta>>,
   keysAreEqual: Equality<Key>,
   limiter: (cache: Cache<Key, Value, Meta>) => Cache<Key, Value, Meta>
 ): CacheDefinition<AppState, Key, Value, Meta> {

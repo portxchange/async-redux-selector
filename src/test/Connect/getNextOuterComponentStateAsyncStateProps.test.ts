@@ -41,8 +41,8 @@ describe('getNextState', () => {
     }
   }
 
-  function getTrackedInput(appState: AppState): Tracked<AppState> {
-    return createTracked(appState => appState.input, appState, areSameReference)
+  function getTrackedInput(appState: AppState): Tracked<AppState, {}> {
+    return createTracked(appState => appState.input, appState, {}, areSameReference)
   }
 
   type Props = Readonly<{
@@ -51,11 +51,11 @@ describe('getNextState', () => {
     ownProp: OwnProp
   }>
 
-  function mapStateToAsyncProps(appState: AppState, ownProps: OwnProps): AsyncSelectorResults<AppState, Command, Props> {
+  function mapStateToAsyncProps(appState: AppState, ownProps: OwnProps): AsyncSelectorResults<AppState, OwnProps, Command, Props> {
     return {
       output: asyncSelectorResult(appState.output, [getTrackedInput(appState)]),
       other: asyncSelectorResult(appState.other, []),
-      ownProp: asyncSelectorResult<AppState, Command, OwnProp>(asyncValueReceived(ownProps.ownProp), [])
+      ownProp: asyncSelectorResult<AppState, OwnProps, Command, OwnProp>(asyncValueReceived(ownProps.ownProp), [])
     }
   }
 
@@ -94,7 +94,7 @@ describe('getNextState', () => {
     }
 
     if (testCase.expectedProps !== undefined) {
-      expect(getInnerComponentProps<AppState, Command, Props, {}, {}>(nextState, {}, {})).toEqual(testCase.expectedProps)
+      expect(getInnerComponentProps<AppState, OwnProps, Command, Props, {}, {}>(nextState, {}, {})).toEqual(testCase.expectedProps)
     }
   }
 

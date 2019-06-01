@@ -21,8 +21,8 @@ describe('Tracked', () => {
       num: 5
     }
 
-    const trackedStr = createTracked(strSelector, appState1, areSameReference)
-    expect(someHasChanged([trackedStr], appState2)).toEqual(false)
+    const trackedStr = createTracked(strSelector, appState1, {}, areSameReference)
+    expect(someHasChanged([trackedStr], appState2, {})).toEqual(false)
   })
 
   it('should be able to tell that the `AppState` did change', () => {
@@ -36,8 +36,8 @@ describe('Tracked', () => {
       num: 4
     }
 
-    const trackedStr = createTracked(strSelector, appState1, areSameReference)
-    expect(someHasChanged([trackedStr], appState2)).toEqual(true)
+    const trackedStr = createTracked(strSelector, appState1, {}, areSameReference)
+    expect(someHasChanged([trackedStr], appState2, {})).toEqual(true)
   })
 
   it('should be able to combine multiple tracked selectors', () => {
@@ -56,12 +56,12 @@ describe('Tracked', () => {
       num: 5
     }
 
-    const trackedStr = createTracked(strSelector, appState1, areSameReference)
-    const trackedNum = createTracked(numSelector, appState1, areSameReference)
+    const trackedStr = createTracked(strSelector, appState1, {}, areSameReference)
+    const trackedNum = createTracked(numSelector, appState1, {}, areSameReference)
     const combined = combineTracked([trackedStr], [trackedNum])
-    expect(someHasChanged(combined, appState1)).toEqual(false)
-    expect(someHasChanged(combined, appState2)).toEqual(true)
-    expect(someHasChanged(combined, appState3)).toEqual(true)
+    expect(someHasChanged(combined, appState1, {})).toEqual(false)
+    expect(someHasChanged(combined, appState2, {})).toEqual(true)
+    expect(someHasChanged(combined, appState3, {})).toEqual(true)
   })
 
   it('should prevent adding the same tracked selector multiple times', () => {
@@ -69,8 +69,8 @@ describe('Tracked', () => {
       str: 'four',
       num: 4
     }
-    const trackedStr = createTracked(strSelector, appState1, areSameReference)
-    const trackedNum = createTracked(numSelector, appState1, areSameReference)
+    const trackedStr = createTracked(strSelector, appState1, {}, areSameReference)
+    const trackedNum = createTracked(numSelector, appState1, {}, areSameReference)
     const combined = combineTracked([trackedStr], [trackedStr, trackedNum])
     expect(combined.length).toEqual(2)
   })

@@ -2,14 +2,13 @@ import { Cache } from '../../Store/Cache'
 import { None, none, NonePartial } from '../../None'
 import { CacheAction } from '../../Store/Action'
 import { createCacheDefinition } from '../../Store/CacheDefinition'
-import { areSameReference, arraysAreEqual } from '../../Equality'
+import { areSameReference, arraysAreEqual, objectsAreEqual } from '../../Equality'
 import { defaultLimiter } from '../../Store/defaultLimiter'
 import { CommandExecutor } from '../../CommandExecutor'
 import { createAsyncSelector } from '../../Select/createAsyncSelector'
 import { OuterComponentState } from '../../Connect/OuterComponentState'
 import { createAppStateSubscriber } from '../../Connect/createAppStateSubscriber'
 import { withPrevious, flatMap } from '../../utils'
-import { shouldComponentUpdate } from '../../Connect/shouldComponentUpdate'
 import { getInnerComponentProps } from '../../Connect/getInnerComponentProps'
 import { createTrackedSelector } from '../../Select/createTrackedSelector'
 import { PickAsyncProps } from '../../Connect/PickAsyncProps'
@@ -166,15 +165,15 @@ describe('integration', () => {
   // determine the props to the     //
   // inner component.               //
   ////////////////////////////////////
-  const getInnerComponentStates = <AsyncProps, SyncProps>(outerComponentStates: OuterComponentState<AppState, Command, AsyncProps, SyncProps>[]) => {
-    const allInnerComponentStates = outerComponentStates.map(s => getInnerComponentProps<AppState, Command, AsyncProps, SyncProps, {}>(s.asyncStateProps, s.syncStateProps, {}))
+  const getInnerComponentStates = <AsyncProps, SyncProps>(outerComponentStates: OuterComponentState<AppState, {}, Command, AsyncProps, SyncProps>[]) => {
+    const allInnerComponentStates = outerComponentStates.map(s => getInnerComponentProps<AppState, {}, Command, AsyncProps, SyncProps, {}>(s.asyncStateProps, s.syncStateProps, {}))
     const renderedInnerComponentStates = withPrevious(allInnerComponentStates)
-      .filter(({ current, previous }) => previous === none || shouldComponentUpdate(previous, current))
+      .filter(({ current, previous }) => previous === none || !objectsAreEqual(previous, current))
       .map(({ current }) => current)
     return renderedInnerComponentStates
   }
 
-  const getInnerComponentState = <AsyncProps, SyncProps>(outerComponentStates: OuterComponentState<AppState, Command, AsyncProps, SyncProps>[]) => {
+  const getInnerComponentState = <AsyncProps, SyncProps>(outerComponentStates: OuterComponentState<AppState, {}, Command, AsyncProps, SyncProps>[]) => {
     const innerComponentStates = getInnerComponentStates(outerComponentStates)
     return innerComponentStates[innerComponentStates.length - 1]
   }
@@ -215,7 +214,7 @@ describe('integration', () => {
       }
     }
 
-    let outerComponentState: OuterComponentState<AppState, Command, AsyncProps, SyncProps> = {
+    let outerComponentState: OuterComponentState<AppState, {}, Command, AsyncProps, SyncProps> = {
       asyncStateProps: mapStateToAsyncProps(appState),
       syncStateProps: mapStateToSyncProps(appState)
     }
@@ -295,7 +294,7 @@ describe('integration', () => {
       }
     }
 
-    let outerComponentState: OuterComponentState<AppState, Command, AsyncProps, SyncProps> = {
+    let outerComponentState: OuterComponentState<AppState, {}, Command, AsyncProps, SyncProps> = {
       asyncStateProps: mapStateToAsyncProps(appState),
       syncStateProps: mapStateToSyncProps(appState)
     }
@@ -351,7 +350,7 @@ describe('integration', () => {
       }
     }
 
-    let outerComponentState: OuterComponentState<AppState, Command, AsyncProps, SyncProps> = {
+    let outerComponentState: OuterComponentState<AppState, {}, Command, AsyncProps, SyncProps> = {
       asyncStateProps: mapStateToAsyncProps(appState),
       syncStateProps: mapStateToSyncProps(appState)
     }

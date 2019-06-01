@@ -1,6 +1,5 @@
-import { Selector } from 'react-redux'
 import { AsyncSelectorResult } from './AsyncSelectorResult'
-import { SelectorWithProps } from './Selector'
 
-export type AsyncSelector<AppState, Command, Value> = Selector<AppState, AsyncSelectorResult<AppState, Command, Value>>
-export type AsyncSelectorWithProps<AppState, Props, Command, Value> = SelectorWithProps<AppState, Props, AsyncSelectorResult<AppState, Command, Value>>
+export type AsyncSelector<AppState, Props, Command, Value> = keyof Props extends never
+  ? (appState: AppState) => AsyncSelectorResult<AppState, {}, Command, Value>
+  : (appState: AppState, props: Props) => AsyncSelectorResult<AppState, Props, Command, Value>

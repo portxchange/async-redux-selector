@@ -5,13 +5,14 @@ import { NonePartial } from '../None'
 import { AsyncSelectorResults } from '../Select/AsyncSelectorResult'
 import { CommandExecutor } from '../CommandExecutor'
 import { getInnerComponentProps } from './getInnerComponentProps'
-import { shouldComponentUpdate } from './shouldComponentUpdate'
 import { OuterComponentState } from './OuterComponentState'
 import { createAppStateSubscriber } from './createAppStateSubscriber'
+import { memoize } from '../utils'
+import { objectsAreEqual, Equality } from '../Equality'
 
-export function connectAsync<AppState, AsyncStateProps, SyncStateProps, DispatchProps, OwnProps, Command>(
+export function connectAsync<AppState, AsyncStateProps, SyncStateProps, DispatchProps, OwnProps extends object, Command>(
   Component: React.ComponentType<NonePartial<AsyncStateProps> & SyncStateProps & DispatchProps>,
-  mapStateToAsyncStateProps: (appState: AppState, ownProps: OwnProps) => AsyncSelectorResults<AppState, Command, AsyncStateProps>,
+  mapStateToAsyncStateProps: (appState: AppState, ownProps: OwnProps) => AsyncSelectorResults<AppState, OwnProps, Command, AsyncStateProps>,
   mapStateToSyncStateProps: (appState: AppState, ownProps: OwnProps) => SyncStateProps,
   mapDispatchToProps: (dispatch: Redux.Dispatch<Redux.Action>) => DispatchProps,
   createCommandExecutor: (dispatch: Redux.Dispatch<Redux.Action>, getState: () => AppState) => CommandExecutor<Command>
@@ -21,10 +22,13 @@ export function connectAsync<AppState, AsyncStateProps, SyncStateProps, Dispatch
     ownProps: OwnProps
   }>
 
-  class OuterComponent extends React.Component<OuterComponentProps, OuterComponentState<AppState, Command, AsyncStateProps, SyncStateProps>> {
+  class OuterComponent extends React.Component<OuterComponentProps, OuterComponentState<AppState, OwnProps, Command, AsyncStateProps, SyncStateProps>> {
+    private subscriber: () => void = () => {}
     private unsubscribeToStore: Redux.Unsubscribe = (): void => undefined
     private readonly dispatchProps: DispatchProps
     private readonly commandExecutor: CommandExecutor<Command>
+    private ownPropsAreEqual: Equality<OwnProps> = memoize(objectsAreEqual)
+    private statesAreEqual: Equality<OuterComponentState<AppState, OwnProps, Command, AsyncStateProps, SyncStateProps>> = memoize(objectsAreEqual)
 
     constructor(props: OuterComponentProps) {
       super(props)
@@ -39,7 +43,7 @@ export function connectAsync<AppState, AsyncStateProps, SyncStateProps, Dispatch
 
     private subscribeToStore() {
       this.unsubscribeToStore()
-      const subscriber = createAppStateSubscriber(
+      this.subscriber = createAppStateSubscriber(
         mapStateToAsyncStateProps,
         mapStateToSyncStateProps,
         this.commandExecutor,
@@ -48,8 +52,8 @@ export function connectAsync<AppState, AsyncStateProps, SyncStateProps, Dispatch
         () => this.state,
         state => this.setState(state)
       )
-      this.unsubscribeToStore = this.props.store.subscribe(subscriber)
-      subscriber()
+      this.unsubscribeToStore = this.props.store.subscribe(this.subscriber)
+      this.subscriber()
     }
 
     public componentDidMount() {
@@ -60,8 +64,8 @@ export function connectAsync<AppState, AsyncStateProps, SyncStateProps, Dispatch
       this.unsubscribeToStore()
     }
 
-    public shouldComponentUpdate(_nextProps: OuterComponentProps, nextState: OuterComponentState<AppState, Command, AsyncStateProps, SyncStateProps>) {
-      return shouldComponentUpdate(this.state, nextState)
+    public shouldComponentUpdate(nextProps: OuterComponentProps, nextState: OuterComponentState<AppState, OwnProps, Command, AsyncStateProps, SyncStateProps>) {
+      return !this.statesAreEqual(this.state, nextState) || !this.ownPropsAreEqual(this.props.ownProps, nextProps.ownProps)
     }
 
     public render() {
@@ -69,6 +73,12 @@ export function connectAsync<AppState, AsyncStateProps, SyncStateProps, Dispatch
         Component,
         getInnerComponentProps(this.state.asyncStateProps, this.state.syncStateProps, this.dispatchProps)
       )
+    }
+
+    public componentDidUpdate(prevProps: OuterComponentProps) {
+      if (!this.ownPropsAreEqual(prevProps.ownProps, this.props.ownProps)) {
+        this.subscriber()
+      }
     }
   }
 

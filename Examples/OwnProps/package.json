@@ -1,12 +1,11 @@
 {
-  "name": "basic",
+  "name": "example",
   "version": "1.0.0",
-  "description": "Basic example of working with async selectors",
+  "description": "Example of working with async selectors",
   "main": "index.js",
   "scripts": {
     "tsc": "tsc",
-    "webpack": "webpack",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "webpack": "webpack"
   },
   "author": "",
   "license": "MIT",
@@ -16,7 +15,7 @@
     "react-dom": "^16.8.6",
     "react-redux": "^7.0.2",
     "redux": "^4.0.1",
-    "selectorbeak": "0.0.5"
+    "selectorbeak": "0.0.7"
   },
   "devDependencies": {
     "webpack": "^4.30.0",

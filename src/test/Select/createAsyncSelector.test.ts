@@ -27,7 +27,7 @@ describe('createAsyncSelector', () => {
         const asyncSelector = createAsyncSelector(stringSelector, numberSelector, (s, n) => s.length + n)
 
         const toVerify = asyncSelector(initialAppState)
-        const expected = asyncSelectorResult<AppState, Command, number>(asyncValueReceived(5), [])
+        const expected = asyncSelectorResult<AppState, {}, Command, number>(asyncValueReceived(5), [])
         expect(toVerify).toEqual(expected)
       })
 
@@ -76,7 +76,7 @@ describe('createAsyncSelector', () => {
         const asyncSelector = createAsyncSelector(stringSelector, numberSelector, (_s, _n) => asyncCommand<Command>([{ type: CommandType.DoSomething }]))
 
         const toVerify = asyncSelector(initialAppState)
-        const expected = asyncSelectorResult<AppState, Command, number>(asyncCommand([{ type: CommandType.DoSomething }]), [])
+        const expected = asyncSelectorResult<AppState, {}, Command, number>(asyncCommand([{ type: CommandType.DoSomething }]), [])
         expect(toVerify).toEqual(expected)
       })
 
@@ -84,7 +84,7 @@ describe('createAsyncSelector', () => {
         const asyncSelector = createAsyncSelector(stringSelector, numberSelector, (_s, _n) => asyncAwaitingValue())
 
         const toVerify = asyncSelector(initialAppState)
-        const expected = asyncSelectorResult<AppState, Command, number>(asyncAwaitingValue(), [])
+        const expected = asyncSelectorResult<AppState, {}, Command, number>(asyncAwaitingValue(), [])
         expect(toVerify).toEqual(expected)
       })
 
@@ -92,7 +92,7 @@ describe('createAsyncSelector', () => {
         const asyncSelector = createAsyncSelector(stringSelector, numberSelector, (s, n) => asyncValueReceived(s.length + n))
 
         const toVerify = asyncSelector(initialAppState)
-        const expected = asyncSelectorResult<AppState, Command, number>(asyncValueReceived(5), [])
+        const expected = asyncSelectorResult<AppState, {}, Command, number>(asyncValueReceived(5), [])
         expect(toVerify).toEqual(expected)
       })
 
@@ -110,8 +110,8 @@ describe('createAsyncSelector', () => {
 
   describe('two async selectors and a regular selector', () => {
     type AppState = Readonly<{ version: number; num: AsyncValue<Command, number>; str: AsyncValue<Command, string>; bool: boolean }>
-    const asyncNumberSelector = (appState: AppState) => asyncSelectorResult<AppState, Command, number>(appState.num, [])
-    const asyncStringSelector = (appState: AppState) => asyncSelectorResult<AppState, Command, string>(appState.str, [])
+    const asyncNumberSelector = (appState: AppState) => asyncSelectorResult<AppState, {}, Command, number>(appState.num, [])
+    const asyncStringSelector = (appState: AppState) => asyncSelectorResult<AppState, {}, Command, string>(appState.str, [])
     const boolSelector = (appState: AppState) => appState.bool
 
     const initialAppState: AppState = { version: 1, num: asyncValueReceived(2), str: asyncValueReceived('one'), bool: false }
@@ -125,7 +125,7 @@ describe('createAsyncSelector', () => {
         })
 
         const toVerify = asyncSelector(initialAppState)
-        const expected = asyncSelectorResult<AppState, Command, number>(asyncValueReceived(5), [])
+        const expected = asyncSelectorResult<AppState, {}, Command, number>(asyncValueReceived(5), [])
         expect(toVerify).toEqual(expected)
         expect(wasCalled).toEqual(true)
       })
@@ -139,7 +139,7 @@ describe('createAsyncSelector', () => {
         })
 
         const toVerify = asyncSelector(appState)
-        const expected = asyncSelectorResult<AppState, Command, number>(asyncAwaitingValue(), [])
+        const expected = asyncSelectorResult<AppState, {}, Command, number>(asyncAwaitingValue(), [])
         expect(toVerify).toEqual(expected)
         expect(wasCalled).toEqual(false)
       })
@@ -158,7 +158,7 @@ describe('createAsyncSelector', () => {
         })
 
         const toVerify = asyncSelector(appState)
-        const expected = asyncSelectorResult<AppState, Command, number>(asyncCommand([{ type: CommandType.DoSomething }, { type: CommandType.DoSomethingElse }]), [])
+        const expected = asyncSelectorResult<AppState, {}, Command, number>(asyncCommand([{ type: CommandType.DoSomething }, { type: CommandType.DoSomethingElse }]), [])
         expect(toVerify).toEqual(expected)
         expect(wasCalled).toEqual(false)
       })
@@ -177,7 +177,7 @@ describe('createAsyncSelector', () => {
         })
 
         const toVerify = asyncSelector(appState)
-        const expected = asyncSelectorResult<AppState, Command, number>(asyncCommand([{ type: CommandType.DoSomething }, { type: CommandType.DoSomethingElse }]), [])
+        const expected = asyncSelectorResult<AppState, {}, Command, number>(asyncCommand([{ type: CommandType.DoSomething }, { type: CommandType.DoSomethingElse }]), [])
         expect(toVerify).toEqual(expected)
         expect(wasCalled).toEqual(false)
       })
@@ -243,7 +243,7 @@ describe('createAsyncSelector', () => {
         )
 
         const toVerify = asyncSelector(initialAppState)
-        const expected = asyncSelectorResult<AppState, Command, number>(asyncCommand([{ type: CommandType.DoSomething }]), [])
+        const expected = asyncSelectorResult<AppState, {}, Command, number>(asyncCommand([{ type: CommandType.DoSomething }]), [])
         expect(toVerify).toEqual(expected)
       })
 
@@ -251,7 +251,7 @@ describe('createAsyncSelector', () => {
         const asyncSelector = createAsyncSelector(asyncStringSelector, asyncNumberSelector, boolSelector, (_s, _n, _b) => asyncAwaitingValue())
 
         const toVerify = asyncSelector(initialAppState)
-        const expected = asyncSelectorResult<AppState, Command, number>(asyncAwaitingValue(), [])
+        const expected = asyncSelectorResult<AppState, {}, Command, number>(asyncAwaitingValue(), [])
         expect(toVerify).toEqual(expected)
       })
 
@@ -259,7 +259,7 @@ describe('createAsyncSelector', () => {
         const res = createAsyncSelector(asyncStringSelector, asyncNumberSelector, boolSelector, (s, n, b) => asyncValueReceived(s.length + n * (b ? 2 : 1)))
 
         const toVerify = res(initialAppState)
-        const expected = asyncSelectorResult<AppState, Command, number>(asyncValueReceived(5), [])
+        const expected = asyncSelectorResult<AppState, {}, Command, number>(asyncValueReceived(5), [])
         expect(toVerify).toEqual(expected)
       })
 
@@ -286,26 +286,26 @@ describe('createAsyncSelector', () => {
     it('should be able to conclude that the inputs are the same', () => {
       const asyncSelectorResult = res({ ...initialAppState, version: 1 })
       const nextAppState: AppState = { ...initialAppState, version: 2 }
-      expect(someHasChanged(asyncSelectorResult.trackedUserInput, nextAppState)).toEqual(false)
+      expect(someHasChanged(asyncSelectorResult.trackedUserInput, nextAppState, {})).toEqual(false)
     })
 
     it('should be able to conclude that the inputs are different', () => {
       const asyncSelectorResult = res({ ...initialAppState, version: 1, num: 2 })
       const nextAppState: AppState = { ...initialAppState, version: 2, num: 3 }
-      expect(someHasChanged(asyncSelectorResult.trackedUserInput, nextAppState)).toEqual(true)
+      expect(someHasChanged(asyncSelectorResult.trackedUserInput, nextAppState, {})).toEqual(true)
     })
   })
 
   describe('passing props', () => {
     type AppState = Readonly<{ version: number; num: AsyncValue<Command, number> }>
     type Props = Readonly<{ version: number; str: string }>
-    const asyncNumberSelector = (appState: AppState) => asyncSelectorResult<AppState, Command, number>(appState.num, [])
+    const asyncNumberSelector = (appState: AppState) => asyncSelectorResult<AppState, Props, Command, number>(appState.num, [])
     const stringSelector = (_appState: AppState, props: Props) => props.str
 
     it('should be able to use data from second argument', () => {
       const res = createAsyncSelector(stringSelector, asyncNumberSelector, (s, n) => s.length + n)
       const toVerify = res({ version: 1, num: asyncValueReceived(4) }, { version: 1, str: 'four' })
-      const expected = asyncSelectorResult<AppState, Command, number>(asyncValueReceived(8), [])
+      const expected = asyncSelectorResult<AppState, Props, Command, number>(asyncValueReceived(8), [])
       expect(toVerify).toEqual(expected)
     })
 
