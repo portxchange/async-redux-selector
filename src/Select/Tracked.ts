@@ -1,5 +1,5 @@
 import { Equality } from '../Equality'
-import { SelectorWithProps } from './Selector'
+import { SelectorWithProps } from './SelectorWithProps'
 
 export type Tracked<AppState, Props> = Readonly<{
   source: SelectorWithProps<AppState, Props, unknown>
