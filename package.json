@@ -1,6 +1,6 @@
 {
   "name": "selectorbeak",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "Selectors that provide a way to fetch data by themselves",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

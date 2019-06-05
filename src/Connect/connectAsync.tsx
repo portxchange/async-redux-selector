@@ -10,13 +10,12 @@ import { createAppStateSubscriber } from './createAppStateSubscriber'
 import { memoize } from '../utils'
 import { objectsAreEqual, Equality } from '../Equality'
 
-export function connectAsync<AppState, AsyncStateProps, SyncStateProps, DispatchProps, OwnProps extends object, Command>(
-  Component: React.ComponentType<NonePartial<AsyncStateProps> & SyncStateProps & DispatchProps>,
+export const connectAsync = <AppState, AsyncStateProps, SyncStateProps, DispatchProps, OwnProps extends object, Command>(
   mapStateToAsyncStateProps: (appState: AppState, ownProps: OwnProps) => AsyncSelectorResults<AppState, OwnProps, Command, AsyncStateProps>,
   mapStateToSyncStateProps: (appState: AppState, ownProps: OwnProps) => SyncStateProps,
   mapDispatchToProps: (dispatch: Redux.Dispatch<Redux.Action>) => DispatchProps,
   createCommandExecutor: (dispatch: Redux.Dispatch<Redux.Action>, getState: () => AppState) => CommandExecutor<Command>
-): React.ComponentType<OwnProps> {
+) => (Component: React.ComponentType<NonePartial<AsyncStateProps> & SyncStateProps & DispatchProps>): React.ComponentType<OwnProps> => {
   type OuterComponentProps = Readonly<{
     store: Redux.Store<AppState, Redux.AnyAction>
     ownProps: OwnProps

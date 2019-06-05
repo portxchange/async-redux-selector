@@ -1,9 +1,19 @@
 import { createCacheDefinition, defaultLimiter } from 'selectorbeak'
 import { AppState, CommentId, Comment } from './AppState'
 
+function keysAreEqual(left: CommentId[], right: CommentId[]): boolean {
+  if (left.length !== right.length) {
+    return false
+  }
+  return left.every((leftElem, index) => {
+    const rightElem = right[index]
+    return leftElem === rightElem
+  })
+}
+
 export const commentsCacheDefinition = createCacheDefinition<AppState, CommentId[], Comment[], null>(
   'comments',
   appState => appState.commentsCache,
-  (left, right) => left.length === right.length && left.every((e, index) => e === right[index]),
+  keysAreEqual,
   defaultLimiter(5)
 )
