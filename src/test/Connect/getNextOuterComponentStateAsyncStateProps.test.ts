@@ -1,76 +1,92 @@
-import { asyncSelectorResult, AsyncSelectorResults } from '../../Select/AsyncSelectorResult'
+import { asyncSelectorResult } from '../../Select/AsyncSelectorResult'
 import { CommandExecutor } from '../../CommandExecutor'
 import { asyncCommand, asyncAwaitingValue, AsyncValue, asyncValueReceived } from '../../AsyncValue'
 import { getNextOuterComponentStateAsyncStateProps } from '../../Connect/getNextOuterComponentStateAsyncStateProps'
 import { areSameReference } from '../../Equality'
 import { Tracked, createTracked } from '../../Select/Tracked'
-import { none, NonePartial } from '../../None'
+import { none, NonePartial, None } from '../../None'
 import { getInnerComponentProps } from '../../Connect/getInnerComponentProps'
+import { PickAsyncPropsWithOwnProps } from '../../Connect/PickAsyncProps'
 
 describe('getNextState', () => {
   enum CommandType {
-    SetOutput,
-    SetOther
+    SetLeft,
+    SetRight
   }
 
-  type SetOutput = Readonly<{ type: CommandType.SetOutput; value: AsyncValue<Command, Output> }>
-  type SetOther = Readonly<{ type: CommandType.SetOther; value: AsyncValue<Command, Other> }>
-  type Command = SetOutput | SetOther
+  type SetLeft = Readonly<{ type: CommandType.SetLeft; value: AsyncValue<Command, Left> }>
+  type SetRight = Readonly<{ type: CommandType.SetRight; value: AsyncValue<Command, Right> }>
+  type Command = SetLeft | SetRight
 
-  type Input = string
-  type Output = number
-  type Other = boolean
-  type OwnProp = number
+  type AppStateInput = string
+  type Left = number
+  type Right = string
+  type OuterPropsInput = number
 
   type AppState = Readonly<{
-    input: Input
-    output: AsyncValue<Command, Output>
-    other: AsyncValue<Command, Other>
+    appStateInput: AppStateInput
+    left: AsyncValue<Command, Left>
+    right: AsyncValue<Command, Right>
   }>
 
-  type OwnProps = Readonly<{
-    ownProp: OwnProp
+  type OuterProps = Readonly<{
+    outerPropsInput: OuterPropsInput
   }>
 
   function executeCommand(appState: AppState, command: Command): AppState {
     switch (command.type) {
-      case CommandType.SetOutput:
-        return { ...appState, output: command.value }
-      case CommandType.SetOther:
-        return { ...appState, other: command.value }
+      case CommandType.SetLeft:
+        return { ...appState, left: command.value }
+      case CommandType.SetRight:
+        return { ...appState, right: command.value }
     }
   }
 
-  function getTrackedInput(appState: AppState): Tracked<AppState, {}> {
-    return createTracked(appState => appState.input, appState, {}, areSameReference)
+  const appStateInputSelector = (appState: AppState) => appState.appStateInput
+  const outerPropsInputSelector = (_appState: AppState, props: OuterProps) => props.outerPropsInput
+
+  function getTrackedAppStateInput(appState: AppState): Tracked<AppState, {}> {
+    return createTracked(appStateInputSelector, appState, {}, areSameReference)
   }
 
-  type Props = Readonly<{
-    output: Output
-    other: Other
-    ownProp: OwnProp
+  function getTrackedOuterPropsInput(appState: AppState, outerProps: OuterProps): Tracked<AppState, OuterProps> {
+    return createTracked(outerPropsInputSelector, appState, outerProps, areSameReference)
+  }
+
+  type InnerProps = Readonly<{
+    appStateInput: AppStateInput
+    left: Left | None
+    right: Right | None
+    outerPropsInput: OuterPropsInput
   }>
 
-  function mapStateToAsyncProps(appState: AppState, ownProps: OwnProps): AsyncSelectorResults<AppState, OwnProps, Command, Props> {
+  function mapStateToAsyncProps(appState: AppState, props: OuterProps): PickAsyncPropsWithOwnProps<AppState, OuterProps, Command, InnerProps, 'left' | 'right'> {
     return {
-      output: asyncSelectorResult(appState.output, [getTrackedInput(appState)]),
-      other: asyncSelectorResult(appState.other, []),
-      ownProp: asyncSelectorResult<AppState, OwnProps, Command, OwnProp>(asyncValueReceived(ownProps.ownProp), [])
+      left: asyncSelectorResult(appState.left, [getTrackedAppStateInput(appState)]),
+      right: asyncSelectorResult(appState.right, [getTrackedOuterPropsInput(appState, props)])
+    }
+  }
+
+  function mapStateToSyncProps(appState: AppState, props: OuterProps): Pick<InnerProps, 'appStateInput' | 'outerPropsInput'> {
+    return {
+      appStateInput: appState.appStateInput,
+      outerPropsInput: props.outerPropsInput
     }
   }
 
   type TestCase = {
     initialAppState: AppState
     nextAppState?: AppState
-    ownProps: OwnProps
+    initialOuterProps: OuterProps
+    nextOuterProps?: OuterProps
     expectedCommands: CommandType[]
-    expectedProps?: NonePartial<Props>
+    expectedInnerProps?: NonePartial<InnerProps>
     expectedFinalAppState?: AppState
   }
 
   function executeTestCase(testCase: TestCase) {
     let appState: AppState = testCase.initialAppState
-    const ownProps: OwnProps = testCase.ownProps
+    let outerProps: OuterProps = testCase.initialOuterProps
 
     let commandsExecuted: Command[] = []
     const commandExecutor: CommandExecutor<Command> = (command: Command) => {
@@ -80,11 +96,12 @@ describe('getNextState', () => {
 
     const getAppState = () => appState
 
-    const initialState = getNextOuterComponentStateAsyncStateProps(commandExecutor, getAppState, ownProps, mapStateToAsyncProps, mapStateToAsyncProps(appState, ownProps))
+    const initialState = getNextOuterComponentStateAsyncStateProps(commandExecutor, getAppState, outerProps, mapStateToAsyncProps, mapStateToAsyncProps(appState, outerProps))
     let nextState = initialState
-    if (testCase.nextAppState !== undefined) {
-      appState = testCase.nextAppState
-      nextState = getNextOuterComponentStateAsyncStateProps(commandExecutor, getAppState, ownProps, mapStateToAsyncProps, initialState)
+    if (testCase.nextAppState !== undefined || testCase.nextOuterProps !== undefined) {
+      appState = testCase.nextAppState || appState
+      outerProps = testCase.nextOuterProps || outerProps
+      nextState = getNextOuterComponentStateAsyncStateProps(commandExecutor, getAppState, outerProps, mapStateToAsyncProps, initialState)
     }
 
     if (testCase.expectedCommands !== undefined) {
@@ -93,26 +110,32 @@ describe('getNextState', () => {
       expect(typesOfCommandsExecuted).toHaveLength(testCase.expectedCommands.length)
     }
 
-    if (testCase.expectedProps !== undefined) {
-      expect(getInnerComponentProps<AppState, OwnProps, Command, Props, {}, {}>(nextState, {}, {})).toEqual(testCase.expectedProps)
+    if (testCase.expectedInnerProps !== undefined) {
+      expect(
+        getInnerComponentProps<AppState, OuterProps, Command, Pick<InnerProps, 'left' | 'right'>, Pick<InnerProps, 'appStateInput' | 'outerPropsInput'>, {}>(
+          nextState,
+          mapStateToSyncProps(appState, outerProps),
+          {}
+        )
+      ).toEqual(testCase.expectedInnerProps)
     }
   }
 
   it('should execute all commands', () => {
     executeTestCase({
       initialAppState: {
-        input: 'four',
-        output: asyncCommand<Command>([{ type: CommandType.SetOutput, value: asyncAwaitingValue() }]),
-        other: asyncCommand<Command>([{ type: CommandType.SetOther, value: asyncAwaitingValue() }])
+        appStateInput: 'four',
+        left: asyncCommand<Command>([{ type: CommandType.SetLeft, value: asyncAwaitingValue() }]),
+        right: asyncCommand<Command>([{ type: CommandType.SetRight, value: asyncAwaitingValue() }])
       },
-      ownProps: {
-        ownProp: 8
+      initialOuterProps: {
+        outerPropsInput: 8
       },
-      expectedCommands: [CommandType.SetOutput, CommandType.SetOther],
+      expectedCommands: [CommandType.SetLeft, CommandType.SetRight],
       expectedFinalAppState: {
-        input: 'four',
-        output: asyncAwaitingValue(),
-        other: asyncAwaitingValue()
+        appStateInput: 'four',
+        left: asyncAwaitingValue(),
+        right: asyncAwaitingValue()
       }
     })
   })
@@ -120,18 +143,19 @@ describe('getNextState', () => {
   it('should return `none` for every `AsyncCommand`', () => {
     executeTestCase({
       initialAppState: {
-        input: 'four',
-        output: asyncCommand([]),
-        other: asyncCommand([])
+        appStateInput: 'four',
+        left: asyncCommand([]),
+        right: asyncCommand([])
       },
-      ownProps: {
-        ownProp: 12
+      initialOuterProps: {
+        outerPropsInput: 12
       },
       expectedCommands: [],
-      expectedProps: {
-        output: none,
-        other: none,
-        ownProp: 12
+      expectedInnerProps: {
+        appStateInput: 'four',
+        left: none,
+        right: none,
+        outerPropsInput: 12
       }
     })
   })
@@ -139,37 +163,39 @@ describe('getNextState', () => {
   it('should return `none` for every `AsyncAwaitingValue`', () => {
     executeTestCase({
       initialAppState: {
-        input: 'four',
-        output: asyncAwaitingValue(),
-        other: asyncAwaitingValue()
+        appStateInput: 'four',
+        left: asyncAwaitingValue(),
+        right: asyncAwaitingValue()
       },
-      ownProps: {
-        ownProp: -3
+      initialOuterProps: {
+        outerPropsInput: -3
       },
       expectedCommands: [],
-      expectedProps: {
-        output: none,
-        other: none,
-        ownProp: -3
+      expectedInnerProps: {
+        appStateInput: 'four',
+        left: none,
+        right: none,
+        outerPropsInput: -3
       }
     })
   })
 
-  it('should return a value for every `AsyncAwaitingValue`', () => {
+  it('should return a value for every `AsyncValueReceived`', () => {
     executeTestCase({
       initialAppState: {
-        input: 'four',
-        output: asyncValueReceived(4),
-        other: asyncValueReceived(true)
+        appStateInput: 'four',
+        left: asyncValueReceived(4),
+        right: asyncValueReceived('cat')
       },
-      ownProps: {
-        ownProp: 0
+      initialOuterProps: {
+        outerPropsInput: 0
       },
       expectedCommands: [],
-      expectedProps: {
-        output: 4,
-        other: true,
-        ownProp: 0
+      expectedInnerProps: {
+        appStateInput: 'four',
+        left: 4,
+        right: 'cat',
+        outerPropsInput: 0
       }
     })
   })
@@ -177,47 +203,77 @@ describe('getNextState', () => {
   it('should ignore every `AsyncAwaitingValue` when the tracked input did not change', () => {
     executeTestCase({
       initialAppState: {
-        input: 'four',
-        output: asyncValueReceived(4),
-        other: asyncValueReceived(true)
+        appStateInput: 'four',
+        left: asyncValueReceived(4),
+        right: asyncValueReceived('cat')
       },
       nextAppState: {
-        input: 'four',
-        output: asyncAwaitingValue(),
-        other: asyncAwaitingValue()
+        appStateInput: 'four',
+        left: asyncAwaitingValue(),
+        right: asyncAwaitingValue()
       },
-      ownProps: {
-        ownProp: 1
+      initialOuterProps: {
+        outerPropsInput: 1
       },
       expectedCommands: [],
-      expectedProps: {
-        output: 4,
-        other: true,
-        ownProp: 1
+      expectedInnerProps: {
+        appStateInput: 'four',
+        left: 4,
+        right: 'cat',
+        outerPropsInput: 1
       }
     })
   })
 
-  it('should return none for every `AsyncAwaitingValue` for which the tracked input changed', () => {
+  it('should return none for every `AsyncAwaitingValue` for which the tracked input changed (for tracked input from `AppState`)', () => {
     executeTestCase({
       initialAppState: {
-        input: 'four',
-        output: asyncValueReceived(4),
-        other: asyncValueReceived(true)
+        appStateInput: 'four',
+        left: asyncValueReceived(4),
+        right: asyncValueReceived('cat')
       },
       nextAppState: {
-        input: 'five',
-        output: asyncAwaitingValue(),
-        other: asyncAwaitingValue()
+        appStateInput: 'five',
+        left: asyncAwaitingValue(),
+        right: asyncAwaitingValue()
       },
-      ownProps: {
-        ownProp: 111
+      initialOuterProps: {
+        outerPropsInput: 111
       },
       expectedCommands: [],
-      expectedProps: {
-        output: none,
-        other: true,
-        ownProp: 111
+      expectedInnerProps: {
+        appStateInput: 'five',
+        left: none,
+        right: 'cat',
+        outerPropsInput: 111
+      }
+    })
+  })
+
+  it('should return none for every `AsyncAwaitingValue` for which the tracked input changed (for tracked input from `OuterProps`)', () => {
+    executeTestCase({
+      initialAppState: {
+        appStateInput: 'four',
+        left: asyncValueReceived(4),
+        right: asyncValueReceived('cat')
+      },
+      nextAppState: {
+        appStateInput: 'four',
+        left: asyncAwaitingValue(),
+        right: asyncAwaitingValue()
+      },
+      initialOuterProps: {
+        outerPropsInput: 111
+      },
+      nextOuterProps: {
+        outerPropsInput: 112
+      },
+      expectedCommands: [],
+      expectedInnerProps: {
+        appStateInput: 'four',
+        left: 4,
+        right: none,
+        outerPropsInput: 112
       }
     })
   })
