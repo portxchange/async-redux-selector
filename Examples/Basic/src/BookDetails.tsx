@@ -1,11 +1,9 @@
 import * as React from 'react'
 import { Book, AppState, Comment, BookId } from './AppState'
-import { None, none, connectAsyncSimple } from 'selectorbeak'
+import { None, none, connectAsyncSimple, PickAsyncPropsWithOwnPropsSimple } from 'selectorbeak'
 import { BookDetailsContainerProps } from './BookDetailsContainerProps'
-import { FetchCommand } from 'selectorbeak/dist/FetchCommand'
 import { asyncSelectedBookSelector } from './asyncSelectedBookSelector'
 import { asyncSelectedBookCommentsSelector } from './asyncSelectedBookCommentsSelector'
-import { PickAsyncPropsWithOwnProps } from 'selectorbeak/dist/Connect/PickAsyncProps'
 
 type PresentationalComponentProps = Readonly<{
   selectedBookId: BookId
@@ -37,7 +35,7 @@ const PresentationalComponent = (props: PresentationalComponentProps) => {
 function mapStateToAsyncProps(
   appState: AppState,
   props: BookDetailsContainerProps
-): PickAsyncPropsWithOwnProps<AppState, BookDetailsContainerProps, FetchCommand, PresentationalComponentProps, 'book' | 'comments'> {
+): PickAsyncPropsWithOwnPropsSimple<AppState, BookDetailsContainerProps, PresentationalComponentProps, 'book' | 'comments'> {
   return {
     book: asyncSelectedBookSelector(appState, props),
     comments: asyncSelectedBookCommentsSelector(appState, props)
