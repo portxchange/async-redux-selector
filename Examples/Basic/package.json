@@ -11,12 +11,12 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.17.11",
+    "async-redux-selector": "0.1.0",
+    "lodash": "^4.17.14",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-redux": "^7.0.2",
-    "redux": "^4.0.1",
-    "async-redux-selector": "0.1.0"
+    "redux": "^4.0.1"
   },
   "devDependencies": {
     "webpack": "^4.30.0",
