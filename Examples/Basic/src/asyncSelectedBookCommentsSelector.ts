@@ -1,4 +1,4 @@
-import { createAsyncSelector, asyncValueReceived, AsyncValue, FetchCommand } from 'selectorbeak'
+import { createAsyncSelector, asyncValueReceived, AsyncValue, FetchCommand } from 'async-redux-selector'
 import { asyncSelectedBookSelector } from './asyncSelectedBookSelector'
 import { commentsCacheDefinition } from './commentsCacheDefinition'
 import { Comment } from './AppState'

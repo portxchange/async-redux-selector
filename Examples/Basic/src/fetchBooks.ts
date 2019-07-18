@@ -9,6 +9,6 @@ export function fetchBooks(queryString: string): Promise<Book[]> {
   return new Promise<Book[]>(resolve => {
     setTimeout(() => {
       resolve(booksOnServer.filter(book => book.title.indexOf(queryString) > -1))
-    }, 5000)
+    }, 1000)
   })
 }

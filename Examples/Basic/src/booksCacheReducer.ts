@@ -1,4 +1,4 @@
-import { Cache } from 'selectorbeak'
+import { Cache } from 'async-redux-selector'
 import { QueryString, Book } from './AppState'
 import { booksCacheDefinition } from './booksCacheDefinition'
 import { Action, CLEAR_BOOKS } from './actions'

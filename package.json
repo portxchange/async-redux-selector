@@ -1,7 +1,7 @@
 {
-  "name": "selectorbeak",
-  "version": "0.0.10",
-  "description": "Selectors that provide a way to fetch data by themselves",
+  "name": "async-redux-selector",
+  "version": "0.1.0",
+  "description": "Asynchronous Redux selectors with 'just in time' data fetching.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -14,14 +14,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wernerdegroot/selectorbeak.git"
+    "url": "git+https://github.com/RotterdamLogisticsLab/async-redux-selector.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/wernerdegroot/selectorbeak/issues"
+    "url": "https://github.com/RotterdamLogisticsLab/async-redux-selector/issues"
   },
-  "homepage": "https://github.com/wernerdegroot/selectorbeak#readme",
+  "homepage": "https://github.com/RotterdamLogisticsLab/async-redux-selector",
   "dependencies": {},
   "devDependencies": {
     "@types/jest": "^24.0.11",

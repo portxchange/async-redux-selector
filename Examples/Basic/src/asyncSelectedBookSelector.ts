@@ -1,4 +1,4 @@
-import { createAsyncSelector } from 'selectorbeak'
+import { createAsyncSelector } from 'async-redux-selector'
 import { asyncBooksSelector } from './asyncBooksSelector'
 import { Book } from './AppState'
 import { asyncSelectedBookIdSelector } from './asyncSelectedBookIdSelector'

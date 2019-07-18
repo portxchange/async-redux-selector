@@ -1,4 +1,4 @@
-import { Cache } from 'selectorbeak'
+import { Cache } from 'async-redux-selector'
 
 export type QueryString = string
 export type BookId = number

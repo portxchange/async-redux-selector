@@ -1,5 +1,5 @@
 import { QueryString } from './AppState'
-import { CacheAction } from 'selectorbeak'
+import { CacheAction } from 'async-redux-selector'
 
 export const SET_QUERY_STRING: 'SET_QUERY_STRING' = 'SET_QUERY_STRING'
 export type SetQueryString = Readonly<{ type: typeof SET_QUERY_STRING; queryString: QueryString }>
