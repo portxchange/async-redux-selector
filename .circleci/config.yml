@@ -1,0 +1,88 @@
+# This workflow setup is based on https://sbstjn.com/boilerplate-for-typescript-npm-package-with-circleci-v2-workflows.html
+
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:10.4
+
+whitelist: &whitelist
+  paths:
+    - .npmignore
+    - coverage/*
+    - dist/*
+    - node_modules/*
+    - src/*
+    - test/*
+    - CODE_OF_CONDUCT.md
+    - CONTRIBUTING.md
+    - LICENSE.md
+    - package.json
+    - README.md
+    - tsconfig.json
+    - tslint.json
+
+version: 2
+jobs:
+  checkout:
+    <<: *defaults
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+
+      - run:
+          name: Install Dependencies
+          command: npm ci
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - persist_to_workspace:
+          root: ~/repo
+          <<: *whitelist
+
+  test:
+    <<: *defaults
+
+    steps:
+      - attach_workspace:
+          at: ~/repo
+
+      - run:
+          name: Test code
+          # TODO: should we upload coverage to https://coveralls.io in order to get nice coverage badge?
+          command: npm coverage
+
+      - persist_to_workspace:
+          root: ~/repo
+          <<: *whitelist
+
+  build:
+    <<: *defaults
+
+    steps:
+      - attach_workspace:
+          at: ~/repo
+
+      - run:
+          name: Build TypeScript code
+          command: npm run build
+
+workflows:
+  version: 2
+
+  build:
+    jobs:
+      - checkout
+      - test:
+          requires:
+            - checkout
+      - build:
+          requires:
+            - test
