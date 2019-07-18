@@ -1,7 +1,7 @@
 {
   "name": "async-redux-selector",
-  "version": "0.0.10",
-  "description": "Selectors that provide a way to fetch data by themselves",
+  "version": "0.1.0",
+  "description": "Asynchronous Redux selectors with 'just in time' data fetching.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
