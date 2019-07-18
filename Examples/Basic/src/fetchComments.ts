@@ -11,6 +11,6 @@ export function fetchComments(commentIds: CommentId[]): Promise<Comment[]> {
   return new Promise<Comment[]>(resolve => {
     setTimeout(() => {
       resolve(commentsOnServer.filter(comment => commentIds.indexOf(comment.id) > -1))
-    }, 5000)
+    }, 1000)
   })
 }

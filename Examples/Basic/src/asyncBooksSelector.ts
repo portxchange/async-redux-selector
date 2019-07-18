@@ -1,4 +1,4 @@
-import { createAsyncSelector, createTrackedSelector } from 'selectorbeak'
+import { createAsyncSelector, createTrackedSelector } from 'async-redux-selector'
 import { queryStringSelector } from './queryStringSelector'
 import { booksCacheDefinition } from './booksCacheDefinition'
 import { fetchBooks } from './fetchBooks'

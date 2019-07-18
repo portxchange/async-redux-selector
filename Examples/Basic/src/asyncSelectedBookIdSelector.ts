@@ -1,4 +1,4 @@
-import { createTrackedSelector } from 'selectorbeak'
+import { createTrackedSelector } from 'async-redux-selector'
 import { selectedBookIdSelector } from './BookDetailsContainerProps'
 import { BookId } from './AppState'
 

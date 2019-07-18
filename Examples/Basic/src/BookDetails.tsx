@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Book, AppState, Comment, BookId } from './AppState'
-import { None, none, connectAsyncSimple, PickAsyncPropsWithOwnPropsSimple } from 'selectorbeak'
+import { None, none, connectAsyncSimple, PickAsyncPropsWithOwnPropsSimple } from 'async-redux-selector'
 import { BookDetailsContainerProps } from './BookDetailsContainerProps'
 import { asyncSelectedBookSelector } from './asyncSelectedBookSelector'
 import { asyncSelectedBookCommentsSelector } from './asyncSelectedBookCommentsSelector'

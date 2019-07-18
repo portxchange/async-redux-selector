@@ -1,4 +1,4 @@
-import { createCacheDefinition, defaultLimiter } from 'selectorbeak'
+import { createCacheDefinition, defaultLimiter } from 'async-redux-selector'
 import { AppState, CommentId, Comment } from './AppState'
 
 function keysAreEqual(left: CommentId[], right: CommentId[]): boolean {

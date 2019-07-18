@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { Book, AppState, BookId } from './AppState'
-import { PickAsyncProps, connectAsyncSimple, FetchCommand } from 'selectorbeak'
+import { PickAsyncProps, connectAsyncSimple, FetchCommand } from 'async-redux-selector'
 import { asyncBooksSelector } from './asyncBooksSelector'
-import { None, none } from 'selectorbeak'
+import { None, none } from 'async-redux-selector'
 import { BookDetails } from './BookDetails'
 
 type PresentationalComponentProps = Readonly<{
