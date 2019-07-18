@@ -9,6 +9,7 @@
     "coverage": "npm run clean && tsc -p . --p tsconfig.test.json && jest --no-cache --coverage",
     "clean": "rm -rf dist coverage",
     "tsc": "tsc",
+    "tsc:watch": "npm run tsc -- --watch",
     "compile": "npm run clean && tsc -p .",
     "prepublishOnly": "npm run test && npm run compile"
   },
