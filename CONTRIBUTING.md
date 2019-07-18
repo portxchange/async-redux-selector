@@ -36,7 +36,7 @@ Before submitting a pull request, please make sure you do the following:
 * Update the code
 * If you’ve fixed a bug or added code that should be tested, add tests!
 * Ensure the tests are still passing (`npm test`)
-* **TODO:** formatting and linting?
+* Make sure the code is formatted correctly (e.g. `npx prettier --write src/*`)
 * Push to your newly created branch
 * Create a [pull request](https://github.com/RotterdamLogisticsLab/async-redux-selector/pulls)
 
