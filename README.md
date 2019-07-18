@@ -1,3 +1,6 @@
+# async-redux-selector
+[![npm version](https://img.shields.io/npm/v/async-redux-selector.svg?style=flat-square)](https://www.npmjs.com/package/async-redux-selector)
+
 ## Example
 
 Suppose we have a web application in which the user can search for pets based on some filter. We want to:
