@@ -1,6 +1,6 @@
 {
   "name": "async-redux-selector",
-  "version": "0.0.10",
+  "version": "0.1.0",
   "description": "Selectors that provide a way to fetch data by themselves",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
