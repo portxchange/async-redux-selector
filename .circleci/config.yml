@@ -58,7 +58,6 @@ jobs:
           name: Test code
           # TODO: should we upload coverage to https://coveralls.io in order to get nice coverage badge?
           command: npm test
-      - store_test_results:
 
       - persist_to_workspace:
           root: ~/repo
