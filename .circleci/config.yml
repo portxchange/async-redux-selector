@@ -18,6 +18,7 @@ whitelist: &whitelist
     - LICENSE.md
     - package.json
     - README.md
+    - jest.config.js
     - tsconfig.*.json
     - tslint.*.json
 
