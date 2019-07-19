@@ -19,7 +19,9 @@ whitelist: &whitelist
     - package.json
     - README.md
     - jest.config.js
+    - tsconfig.json
     - tsconfig.*.json
+    - tslint.json
     - tslint.*.json
 
 version: 2
@@ -73,7 +75,7 @@ jobs:
 
       - run:
           name: Build TypeScript code
-          command: npm run build
+          command: npm run compile
 
 workflows:
   version: 2
