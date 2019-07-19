@@ -18,8 +18,8 @@ whitelist: &whitelist
     - LICENSE.md
     - package.json
     - README.md
-    - tsconfig.json
-    - tslint.json
+    - tsconfig.*.json
+    - tslint.*.json
 
 version: 2
 jobs:
