@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "npm run clean && tsc -p . --p tsconfig.test.json && jest --no-cache",
-    "coverage": "npm run clean && tsc -p . --p tsconfig.test.json && jest --no-cache --coverage",
+    "test": "npm run compile -- --p tsconfig.test.json && jest --no-cache",
+    "coverage": "npm run compile -- --p tsconfig.test.json && jest --no-cache --coverage",
     "clean": "rm -rf dist coverage",
     "tsc": "tsc",
     "compile": "npm run clean && tsc -p .",
