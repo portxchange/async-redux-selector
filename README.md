@@ -32,7 +32,7 @@ In applications we were used to building this looks like this:
 
 This is okay to begin with, but as soon as your store and component's data requirements start to scale, this gets less than ideal quickly.
 
-There are a [couple of approaches](#1) for the above process, but they tend to have some downsides: It's hard to figure out where to fetch the data.
+There are a [couple of approaches [1]](#1) for the above process, but they tend to have some downsides: It's hard to figure out where to fetch the data.
 
 We might initiate the request from the filter component, but the filter component doesn't know upfront what components are visible and what their data requirements are. This isn't such a big issue in the book store, but might get pretty complicated for larger applications.
 
@@ -263,10 +263,10 @@ Once this component is hooked up to your async selector(s) and renders, it will 
     * Update Benefits
     * Explain `createTrackedSelector()`
 
-
 ## Notes
 
-### [1]
+### 1) Links to approaches for asynchronous data fetching
+
 * https://paulgray.net/race-conditions-in-redux/
 * https://medium.com/faceyspacey/redux-first-router-data-fetching-solving-the-80-use-case-for-async-middleware-14529606c262
 * https://daveceddia.com/where-fetch-data-redux/
