@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RotterdamLogisticsLab/async-redux-selector.git"
+    "url": "git+https://github.com/portxchange/async-redux-selector.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/RotterdamLogisticsLab/async-redux-selector/issues"
+    "url": "https://github.com/portxchange/async-redux-selector/issues"
   },
-  "homepage": "https://github.com/RotterdamLogisticsLab/async-redux-selector",
+  "homepage": "https://github.com/portxchange/async-redux-selector",
   "peerDependencies": {
     "react": "^16.6.0",
     "redux": "^4.0.0",

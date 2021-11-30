@@ -9,8 +9,8 @@ Please take a moment to review this document in order to make the contribution p
 There are many ways to contribute:
 * writing tutorials or blog posts
 * improving the [documentation](README.md)
-* Fix an [issue](https://github.com/RotterdamLogisticsLab/async-redux-selector/issues)
-* Create or review a [pull request](https://github.com/RotterdamLogisticsLab/async-redux-selector/pulls)
+* Fix an [issue](https://github.com/portxchange/async-redux-selector/issues)
+* Create or review a [pull request](https://github.com/portxchange/async-redux-selector/pulls)
 
 Please, don't use the issue tracker for support questions. 
 Please consider asking usage questions ("How do I?") on [StackOverflow](https://stackoverflow.com/questions/tagged/async-redux-selector).
@@ -24,7 +24,7 @@ If you send a pull request, please do it against the master branch.
 
 ## Getting started
 
-For something that is bigger than a one or two line fix create an [issue](https://github.com/RotterdamLogisticsLab/async-redux-selector/issues) first.
+For something that is bigger than a one or two line fix create an [issue](https://github.com/portxchange/async-redux-selector/issues) first.
 This allows for discussion before even writing a single line of code.
 
 ### Submitting a pull request
@@ -38,6 +38,6 @@ Before submitting a pull request, please make sure you do the following:
 * Ensure the tests are still passing (`npm test`)
 * Make sure the code is formatted correctly (e.g. `npx prettier --write src/*`)
 * Push to your newly created branch
-* Create a [pull request](https://github.com/RotterdamLogisticsLab/async-redux-selector/pulls)
+* Create a [pull request](https://github.com/portxchange/async-redux-selector/pulls)
 
 
